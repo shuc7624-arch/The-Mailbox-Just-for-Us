@@ -1291,7 +1291,7 @@
                 }
             }
             
-            // 模拟数据 - 初始好友档案（现在包含多张照片和时间记录）
+            // 模拟数据 - 初始好友档案
             let friendsData = JSON.parse(localStorage.getItem('friendsData')) || [
                 {
                     id: 1,
@@ -1329,22 +1329,43 @@
             ];
             
             // 为现有数据生成时间线
-            friendsData.forEach(friend => {
-                // 🔒 防御式写法，保证不会报错
-                if (!Array.isArray(friend.photos)) friend.photos = [];
-                if (!Array.isArray(friend.messages)) friend.messages = [];
-
-                // 不再需要特殊标记第一条留言，所有留言都平等处理
-                friend.timeline = [...friend.photos, ...friend.messages].sort((a, b) =>
-                    new Date(b.time) - new Date(a.time)
-                );
-                
-                // 为已有数据添加颜色属性
-                if (!friend.avatarColor) {
-                    friend.avatarColor = getAvatarColor(friend.name);
-                }
-            });
-
+            function updateTimelineForAllFriends() {
+                friendsData.forEach(friend => {
+                    if (!friend.photos) friend.photos = [];
+                    if (!friend.messages) friend.messages = [];
+                    
+                    // 合并所有时间线项目
+                    friend.timeline = [];
+                    
+                    // 添加所有照片
+                    friend.photos.forEach(photo => {
+                        friend.timeline.push({
+                            ...photo,
+                            sender: "🥬",
+                            type: "photo"
+                        });
+                    });
+                    
+                    // 添加所有留言
+                    friend.messages.forEach(message => {
+                        friend.timeline.push({
+                            ...message,
+                            type: "message"
+                        });
+                    });
+                    
+                    // 按时间排序（最新的在前面）
+                    friend.timeline.sort((a, b) => new Date(b.time) - new Date(a.time));
+                    
+                    // 为已有数据添加颜色属性
+                    if (!friend.avatarColor) {
+                        friend.avatarColor = getAvatarColor(friend.name);
+                    }
+                });
+            }
+            
+            // 初始化时间线
+            updateTimelineForAllFriends();
             
             // 当前选中的好友（用户视角）
             let currentFriend = null;
@@ -1560,7 +1581,7 @@
                 });
             }
             
-            // 创建好友档案
+            // 创建好友档案（修复版 - 确保实时显示）
             friendForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 
@@ -1601,26 +1622,38 @@
                     name: name,
                     adminMessage: adminMessage || "🥬想对你说：很高兴认识你！",
                     avatarColor: avatarColor,
-                    photos: selectedPhotos.map(photo => ({
-                        url: photo.url,
-                        time: photo.time,
-                        type: 'photo'
-                    })),
-                    messages: [
-                        {
-                            sender: "🥬",
-                            content: adminMessage || "🥬想对你说：很高兴认识你！",
-                            time: timeString,
-                            type: "message"
-                        }
-                    ],
+                    photos: [],
+                    messages: [],
                     timeline: []
                 };
                 
-                // 生成时间线
-                newFriend.timeline = [...newFriend.photos, ...newFriend.messages].sort((a, b) =>
-                    new Date(b.time) - new Date(a.time)
-                );
+                // 添加照片
+                selectedPhotos.forEach(photo => {
+                    const photoObj = {
+                        url: photo.url,
+                        time: photo.time,
+                        type: 'photo'
+                    };
+                    newFriend.photos.push(photoObj);
+                    newFriend.timeline.push({
+                        ...photoObj,
+                        sender: "🥬",
+                        type: "photo"
+                    });
+                });
+                
+                // 添加初始留言
+                const initialMessage = {
+                    sender: "🥬",
+                    content: adminMessage || "🥬想对你说：很高兴认识你！",
+                    time: timeString,
+                    type: "message"
+                };
+                newFriend.messages.push(initialMessage);
+                newFriend.timeline.push(initialMessage);
+                
+                // 排序时间线（最新的在前面）
+                newFriend.timeline.sort((a, b) => new Date(b.time) - new Date(a.time));
                 
                 // 添加到数据数组
                 friendsData.push(newFriend);
@@ -1632,15 +1665,30 @@
                 friendForm.reset();
                 selectedPhotos = [];
                 updatePhotosPreview();
+                photosUpload.style.display = 'block'; // 确保上传区域重新显示
                 
-                // 重新加载好友列表
-                loadFriendsList();
-                
-                showNotification(`好友 "${name}" 的档案创建成功！🥬`, 'success');
+                // 立即重新加载好友列表（使用延时确保DOM更新）
+                setTimeout(() => {
+                    loadFriendsList();
+                    showNotification(`好友 "${name}" 的档案创建成功！🥬`, 'success');
+                }, 50);
             });
             
-            // 加载好友列表
+            // 加载好友列表（修复版 - 确保实时更新）
             function loadFriendsList() {
+                console.log("开始加载好友列表...");
+                
+                // 强制从localStorage重新读取数据（确保数据最新）
+                const freshData = localStorage.getItem('friendsData');
+                if (freshData) {
+                    try {
+                        friendsData = JSON.parse(freshData);
+                        console.log("重新加载的数据:", friendsData);
+                    } catch (e) {
+                        console.error("解析本地存储数据失败:", e);
+                    }
+                }
+                
                 if (friendsData.length === 0) {
                     friendList.innerHTML = `
                         <div class="no-data">
@@ -1651,6 +1699,7 @@
                     return;
                 }
                 
+                // 清空当前列表
                 friendList.innerHTML = '';
                 
                 friendsData.forEach(friend => {
@@ -1665,8 +1714,8 @@
                             <h4>${friend.name}</h4>
                             <p>${friend.adminMessage.substring(0, 60)}${friend.adminMessage.length > 60 ? '...' : ''}</p>
                             <p style="font-size: 0.9rem; color: var(--accent-color); margin-top: 5px;">
-                                <i class="fas fa-images"></i> ${friend.photos.length} 张照片 · 
-                                <i class="fas fa-comments"></i> ${friend.messages.length} 条留言
+                                <i class="fas fa-images"></i> ${friend.photos ? friend.photos.length : 0} 张照片 · 
+                                <i class="fas fa-comments"></i> ${friend.messages ? friend.messages.length : 0} 条留言
                             </p>
                         </div>
                         <div class="friend-actions">
@@ -1736,7 +1785,7 @@
             function displayExistingPhotos(friend) {
                 existingPhotosContainer.innerHTML = '';
                 
-                if (friend.photos.length === 0) {
+                if (!friend.photos || friend.photos.length === 0) {
                     existingPhotosContainer.innerHTML = `
                         <div class="no-data" style="padding: 20px; grid-column: 1 / -1;">
                             <i class="fas fa-images"></i>
@@ -1919,7 +1968,9 @@
                 displayExistingPhotos(managingFriend);
                 
                 // 重新加载好友列表
-                loadFriendsList();
+                setTimeout(() => {
+                    loadFriendsList();
+                }, 50);
                 
                 // 关闭模态框
                 manageFriendModal.classList.remove('active');
@@ -1968,16 +2019,40 @@
                 displayExistingPhotos(managingFriend);
                 
                 // 重新加载好友列表
-                loadFriendsList();
+                setTimeout(() => {
+                    loadFriendsList();
+                }, 50);
                 
                 showNotification(`已为 "${managingFriend.name}" 添加新留言成功！🥬`, 'success');
             });
             
             // 更新好友时间线
             function updateFriendTimeline(friend) {
-                friend.timeline = [...friend.photos, ...friend.messages].sort((a, b) =>
-                    new Date(b.time) - new Date(a.time)
-                );
+                friend.timeline = [];
+                
+                // 添加所有照片
+                if (friend.photos && friend.photos.length > 0) {
+                    friend.photos.forEach(photo => {
+                        friend.timeline.push({
+                            ...photo,
+                            sender: "🥬",
+                            type: "photo"
+                        });
+                    });
+                }
+                
+                // 添加所有留言
+                if (friend.messages && friend.messages.length > 0) {
+                    friend.messages.forEach(message => {
+                        friend.timeline.push({
+                            ...message,
+                            type: "message"
+                        });
+                    });
+                }
+                
+                // 按时间排序（最新的在前面）
+                friend.timeline.sort((a, b) => new Date(b.time) - new Date(a.time));
             }
             
             // 关闭管理模态框
@@ -2015,8 +2090,12 @@
                 if (confirm(`确定要删除好友 "${friend.name}" 的档案吗？这将会删除所有照片和留言记录。`)) {
                     friendsData = friendsData.filter(f => f.id !== friendId);
                     localStorage.setItem('friendsData', JSON.stringify(friendsData));
-                    loadFriendsList();
-                    showNotification(`好友 "${friend.name}" 的档案已删除成功！`, 'info');
+                    
+                    // 立即重新加载好友列表
+                    setTimeout(() => {
+                        loadFriendsList();
+                        showNotification(`好友 "${friend.name}" 的档案已删除成功！`, 'info');
+                    }, 50);
                 }
             }
             
@@ -2114,6 +2193,9 @@
             
             // 显示时间线
             function displayTimeline(friend) {
+                // 确保时间线是最新的
+                updateFriendTimeline(friend);
+                
                 // 过滤时间线项目
                 let filteredTimeline = friend.timeline;
                 if (currentFilter === 'message') {
@@ -2209,12 +2291,12 @@
                     type: 'message'
                 };
                 
-                // 添加到消息数组和时间线
+                // 添加到消息数组
+                if (!currentFriend.messages) currentFriend.messages = [];
                 currentFriend.messages.push(newMessage);
-                currentFriend.timeline.push(newMessage);
                 
-                // 按时间排序时间线（最新的在前面）
-                currentFriend.timeline.sort((a, b) => new Date(b.time) - new Date(a.time));
+                // 更新时间线
+                updateFriendTimeline(currentFriend);
                 
                 // 保存到本地存储
                 localStorage.setItem('friendsData', JSON.stringify(friendsData));
@@ -2258,10 +2340,9 @@
                     
                     // 添加🥬回复
                     currentFriend.messages.push(replyMessage);
-                    currentFriend.timeline.push(replyMessage);
                     
-                    // 按时间排序时间线
-                    currentFriend.timeline.sort((a, b) => new Date(b.time) - new Date(a.time));
+                    // 更新时间线
+                    updateFriendTimeline(currentFriend);
                     
                     // 保存到本地存储
                     localStorage.setItem('friendsData', JSON.stringify(friendsData));
@@ -2292,6 +2373,9 @@
             
             // 初始化页面
             function init() {
+                // 初始化时间线
+                updateTimelineForAllFriends();
+                
                 // 加载好友列表
                 loadFriendsList();
                 
