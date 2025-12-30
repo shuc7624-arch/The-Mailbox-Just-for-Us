@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
     <style>
-        /* 保持原有CSS样式不变 */
         * {
             margin: 0;
             padding: 0;
@@ -38,67 +37,264 @@
             overflow-x: hidden;
         }
         
-        /* ... 保持所有原有的CSS样式 ... */
-        
-        /* 数据状态指示器 */
-        .data-status {
+        /* 背景装饰元素 */
+        .decoration {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 10px 15px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
+            z-index: -1;
+            font-size: 3rem;
+            opacity: 0.1;
+            animation: float 8s infinite ease-in-out;
+        }
+        
+        .dec-1 { top: 10%; left: 5%; animation-delay: 0s; }
+        .dec-2 { top: 20%; right: 8%; animation-delay: 1s; }
+        .dec-3 { bottom: 15%; left: 7%; animation-delay: 2s; }
+        .dec-4 { bottom: 25%; right: 12%; animation-delay: 3s; }
+        .dec-5 { top: 40%; left: 15%; animation-delay: 4s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: var(--round);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            border: 8px solid var(--light-color);
+        }
+        
+        header {
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "🥬🥬🥬🥬🥬🥬🥬🥬🥬🥬🥬🥬🥬🥬";
+            position: absolute;
+            top: 10px;
+            left: 0;
+            font-size: 1.5rem;
+            opacity: 0.2;
+            white-space: nowrap;
+        }
+        
+        .title-container {
+            position: relative;
+            z-index: 2;
+        }
+        
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
             font-family: 'Ma Shan Zheng', cursive;
-            color: var(--dark-color);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            color: #5A5A5A;
+        }
+        
+        header h1 span {
+            color: #FF7A7A;
+        }
+        
+        header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .view-switcher {
+            display: flex;
+            justify-content: center;
+            background-color: var(--light-color);
+            padding: 15px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        
+        .view-btn {
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 50px;
+            margin: 0 15px;
+            transition: all 0.4s ease;
+            color: var(--text-color);
+            position: relative;
+            overflow: hidden;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        .view-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            z-index: -1;
+            border-radius: 50px;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+        }
+        
+        .view-btn.active::before {
+            transform: translateY(0);
+        }
+        
+        .view-btn.active {
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 170, 165, 0.4);
+        }
+        
+        .view-btn:hover:not(.active) {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(168, 230, 207, 0.4);
+        }
+        
+        .view-btn i {
+            margin-right: 10px;
+        }
+        
+        .view-container {
+            display: none;
+            padding: 30px;
+            min-height: 600px;
+        }
+        
+        .view-container.active {
+            display: block;
+        }
+        
+        .admin-view, .user-view {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 1200px) {
+            .admin-view, .user-view {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: var(--round);
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(168, 230, 207, 0.2);
+            border: 3px solid var(--light-color);
+            transition: transform 0.3s ease;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+        }
+        
+        .section-title {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px dotted var(--primary-color);
             display: flex;
             align-items: center;
-            gap: 8px;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        .section-title i {
+            margin-right: 15px;
+            background-color: var(--light-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 15px 20px;
             border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: 'ZCOOL XiaoWei', serif;
+            background-color: rgba(168, 230, 207, 0.1);
         }
         
-        .data-status.online::before {
-            content: '';
-            width: 10px;
-            height: 10px;
-            background-color: #4CAF50;
-            border-radius: 50%;
-            display: inline-block;
-            animation: pulse 2s infinite;
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(255, 170, 165, 0.2);
         }
         
-        .data-status.offline::before {
-            content: '';
-            width: 10px;
-            height: 10px;
-            background-color: #FF5252;
-            border-radius: 50%;
-            display: inline-block;
+        textarea {
+            min-height: 150px;
+            resize: vertical;
         }
         
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
-        /* 数据备份按钮 */
-        .data-backup {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        
-        .backup-btn {
-            background: linear-gradient(90deg, #7C9EB2 0%, #A8E6CF 100%);
+        .btn {
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 18px 30px;
             border-radius: 15px;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Ma Shan Zheng', cursive;
+            box-shadow: 0 5px 15px rgba(168, 230, 207, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 170, 165, 0.4);
+        }
+        
+        .btn i {
+            margin-right: 10px;
+        }
+        
+        /* 返回按钮样式 */
+        .back-btn {
+            background: linear-gradient(90deg, var(--dark-color) 0%, #7C9EB2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 15px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -107,15 +303,731 @@
             justify-content: center;
             font-family: 'Ma Shan Zheng', cursive;
             box-shadow: 0 5px 15px rgba(124, 158, 178, 0.4);
+            margin-bottom: 20px;
         }
         
-        .backup-btn:hover {
+        .back-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(124, 158, 178, 0.6);
+            box-shadow: 0 8px 20px rgba(124, 158, 178, 0.4);
         }
         
-        .backup-btn i {
+        .back-btn i {
             margin-right: 8px;
+        }
+        
+        /* 多照片上传区域 */
+        .photos-upload {
+            border: 3px dashed var(--primary-color);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 25px;
+            background-color: rgba(168, 230, 207, 0.1);
+        }
+        
+        .photos-upload:hover {
+            border-color: var(--accent-color);
+            background-color: rgba(255, 211, 182, 0.2);
+        }
+        
+        .photos-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .photo-item {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .photo-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .photo-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .photo-info {
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            color: var(--dark-color);
+        }
+        
+        .photo-time {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        .remove-photo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(255, 170, 165, 0.9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .remove-photo:hover {
+            background-color: rgba(255, 122, 122, 1);
+            transform: scale(1.1);
+        }
+        
+        .friend-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .friend-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, rgba(168, 230, 207, 0.1) 0%, rgba(255, 211, 182, 0.1) 100%);
+            border-left: 6px solid var(--accent-color);
+            transition: all 0.3s;
+        }
+        
+        .friend-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(255, 170, 165, 0.2);
+        }
+        
+        /* 纯色头像样式 */
+        .friend-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+            border: 4px solid var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        /* 纯色头像颜色配置 */
+        .avatar-color-1 { background: linear-gradient(135deg, #FFAAA5 0%, #FF7A7A 100%); }
+        .avatar-color-2 { background: linear-gradient(135deg, #A8E6CF 0%, #7C9EB2 100%); }
+        .avatar-color-3 { background: linear-gradient(135deg, #FFD3B6 0%, #FFAAA5 100%); }
+        .avatar-color-4 { background: linear-gradient(135deg, #7C9EB2 0%, #A8E6CF 100%); }
+        .avatar-color-5 { background: linear-gradient(135deg, #FFE8E8 0%, #FFD3B6 100%); color: var(--text-color); }
+        .avatar-color-6 { background: linear-gradient(135deg, #A8E6CF 0%, #FFAAA5 100%); }
+        
+        .friend-info h4 {
+            margin-bottom: 8px;
+            color: var(--dark-color);
+            font-size: 1.3rem;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        .friend-info p {
+            color: var(--text-color);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .friend-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-color);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+        
+        .action-btn:hover {
+            background-color: var(--accent-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        /* 时光线样式 */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .timeline-item {
+            display: flex;
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: -25px;
+            width: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        .timeline-item:last-child::before {
+            display: none;
+        }
+        
+        .timeline-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            position: relative;
+            z-index: 2;
+            border: 3px solid var(--primary-color);
+            color: var(--accent-color);
+            font-size: 1.5rem;
+        }
+        
+        .timeline-content {
+            flex: 1;
+            background-color: rgba(168, 230, 207, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid var(--accent-color);
+        }
+        
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .timeline-sender {
+            font-weight: 600;
+            color: var(--accent-color);
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.2rem;
+        }
+        
+        .timeline-time {
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+        
+        .timeline-message {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .timeline-photos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .timeline-photo {
+            border-radius: 10px;
+            overflow: hidden;
+            height: 120px;
+            position: relative;
+        }
+        
+        .timeline-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .timeline-photo:hover img {
+            transform: scale(1.1);
+        }
+        
+        .timeline-photo-time {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            text-align: center;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--dark-color);
+        }
+        
+        .no-data i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            opacity: 0.7;
+        }
+        
+        .no-data p {
+            font-size: 1.2rem;
+            margin-top: 15px;
+        }
+        
+        .user-search {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .user-search input {
+            flex: 1;
+        }
+        
+        /* 优化好友头像显示 */
+        .friend-profile {
+            padding: 20px 0;
+            text-align: center;
+        }
+        
+        .friend-avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 25px;
+        }
+        
+        .friend-avatar-container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color), var(--secondary-color));
+            border-radius: 50%;
+            z-index: -1;
+            animation: rotate 10s linear infinite;
+        }
+        
+        .friend-avatar-container::after {
+            content: '🥬';
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background-color: var(--accent-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px rgba(255, 170, 165, 0.4);
+            z-index: 2;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .friend-profile-img {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 12px solid white;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 72px;
+            font-weight: bold;
+            color: white;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        .friend-profile-img:hover {
+            transform: scale(1.05);
+        }
+        
+        .friend-profile h3 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+            font-family: 'Ma Shan Zheng', cursive;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+            padding: 0 20px;
+        }
+        
+        .friend-profile h3::before,
+        .friend-profile h3::after {
+            content: '🥬';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            opacity: 0.7;
+        }
+        
+        .friend-profile h3::before {
+            left: -10px;
+        }
+        
+        .friend-profile h3::after {
+            right: -10px;
+        }
+        
+        .friend-profile p {
+            color: var(--text-color);
+            line-height: 1.8;
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 20px 30px;
+            border-radius: 15px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideIn 0.5s ease;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            max-width: 400px;
+        }
+        
+        .notification::before {
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .notification.success {
+            background: linear-gradient(90deg, var(--primary-color) 0%, #7C9EB2 100%);
+        }
+        
+        .notification.success::before {
+            content: '🥬';
+        }
+        
+        .notification.error {
+            background: linear-gradient(90deg, #FFAAA5 0%, #FF7A7A 100%);
+        }
+        
+        .notification.error::before {
+            content: '⚠️';
+        }
+        
+        .notification.info {
+            background: linear-gradient(90deg, #7C9EB2 0%, #A8E6CF 100%);
+        }
+        
+        .notification.info::before {
+            content: '💬';
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--dark-color);
+            font-size: 1rem;
+            border-top: 3px dotted var(--primary-color);
+            background-color: rgba(255, 232, 232, 0.5);
+        }
+        
+        .password-section {
+            margin-bottom: 30px;
+            padding: 30px;
+            background: linear-gradient(90deg, rgba(168, 230, 207, 0.1) 0%, rgba(255, 211, 182, 0.1) 100%);
+            border-radius: 15px;
+            border: 3px solid var(--light-color);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .greeting {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--accent-color);
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        /* 照片计数器 */
+        .photos-count {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            text-align: center;
+            line-height: 25px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(168, 230, 207, 0.1);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--accent-color) 0%, #FF7A7A 100%);
+        }
+        
+        /* 时间线过滤器 */
+        .timeline-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: var(--light-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Ma Shan Zheng', cursive;
+            color: var(--dark-color);
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .filter-btn:hover:not(.active) {
+            background-color: rgba(168, 230, 207, 0.3);
+        }
+        
+        /* 模态框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background-color: white;
+            border-radius: var(--round);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 8px solid var(--light-color);
+            transform: translateY(-50px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px dotted var(--primary-color);
+        }
+        
+        .modal-title {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            font-family: 'Ma Shan Zheng', cursive;
+            display: flex;
+            align-items: center;
+        }
+        
+        .modal-title i {
+            margin-right: 15px;
+            background-color: var(--light-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-modal:hover {
+            background-color: var(--light-color);
+            transform: rotate(90deg);
+        }
+        
+        /* 已上传照片网格 */
+        .existing-photos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .existing-photo-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .existing-photo-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .existing-photo-time {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            text-align: center;
+        }
+        
+        .remove-existing-photo {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: rgba(255, 170, 165, 0.9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+        }
+        
+        .remove-existing-photo:hover {
+            background-color: rgba(255, 122, 122, 1);
+            transform: scale(1.1);
+        }
+        
+        /* 顶部返回按钮 */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .top-header h2 {
+            margin: 0;
+            color: var(--accent-color);
+            font-family: 'Ma Shan Zheng', cursive;
         }
     </style>
 </head>
@@ -127,20 +1039,7 @@
     <div class="decoration dec-4">🥬</div>
     <div class="decoration dec-5">🥬</div>
     
-    <!-- 数据状态指示器 -->
-    <div class="data-status online" id="data-status">
-        <span>数据已保存</span>
-    </div>
-    
-    <!-- 数据备份按钮 -->
-    <div class="data-backup">
-        <button class="backup-btn" id="backup-btn">
-            <i class="fas fa-download"></i> 备份数据
-        </button>
-    </div>
-    
     <div class="container">
-        <!-- 保持原有的HTML结构不变 -->
         <header>
             <div class="title-container">
                 <h1><span>🥬</span> 的小宇宙 <span>🥬</span></h1>
@@ -160,12 +1059,121 @@
         
         <!-- 管理员视角 -->
         <div class="view-container active" id="admin-view">
-            <!-- ... 保持原有的管理员界面 ... -->
+            <div class="password-section" id="password-section">
+                <h3 class="section-title"><i class="fas fa-lock"></i> 🥬的身份验证</h3>
+                <div class="input-group">
+                    <label for="admin-password">请输入🥬的专属密码</label>
+                    <input type="password" id="admin-password" placeholder="只有🥬知道的神秘密码...">
+                </div>
+                <button class="btn" id="login-btn">
+                    <i class="fas fa-door-open"></i> 进入🥬的时光小屋
+                </button>
+            </div>
+            
+            <div class="admin-view hidden" id="admin-content">
+                <div class="top-header">
+                    <h2><i class="fas fa-heart"></i> 🥬的管理空间</h2>
+                    <button class="back-btn" id="admin-back-btn">
+                        <i class="fas fa-arrow-left"></i> 返回登录
+                    </button>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title"><i class="fas fa-book-medical"></i> 创建好友档案</h2>
+                    <form id="friend-form">
+                        <div class="input-group">
+                            <label for="friend-name">好友姓名</label>
+                            <input type="text" id="friend-name" placeholder="请输入好友的可爱名字" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="admin-message">🥬想对你说</label>
+                            <textarea id="admin-message" placeholder="输入🥬想对好友说的悄悄话..."></textarea>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>上传好友的美照 <span id="photos-count" class="photos-count">0</span></label>
+                            <div class="photos-upload" id="photos-upload">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #A8E6CF; margin-bottom: 15px;"></i>
+                                <p>点击此处上传好友的可爱照片（支持多选）</p>
+                                <p style="font-size: 0.9rem; color: #7C9EB2; margin-top: 5px;">按住 Ctrl 或 Shift 键可以选择多张照片</p>
+                            </div>
+                            <input type="file" id="photos-input" accept="image/*" multiple style="display: none;">
+                            <div id="photos-preview" class="photos-preview">
+                                <!-- 照片预览将在这里动态生成 -->
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn">
+                            <i class="fas fa-heart"></i> 保存好友档案
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title"><i class="fas fa-book-open"></i> 已创建的好友档案</h2>
+                    <div class="friend-list" id="friend-list">
+                        <!-- 好友列表将通过JS动态生成 -->
+                        <div class="no-data">
+                            <i class="fas fa-users"></i>
+                            <p>还没有好友档案，快为你的朋友创建一个吧！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- 用户视角 -->
         <div class="view-container" id="user-view">
-            <!-- ... 保持原有的用户界面 ... -->
+            <div class="user-view">
+                <div class="section">
+                    <div class="top-header">
+                        <h2><i class="fas fa-search-heart"></i> 查找你的档案</h2>
+                        <button class="back-btn hidden" id="user-back-btn">
+                            <i class="fas fa-arrow-left"></i> 返回搜索
+                        </button>
+                    </div>
+                    
+                    <div class="user-search">
+                        <input type="text" id="user-name" placeholder="请输入你的名字">
+                        <button class="btn" id="search-btn">
+                            <i class="fas fa-search"></i> 寻找🥬的留言
+                        </button>
+                    </div>
+                    
+                    <div id="user-result">
+                        <div class="no-data">
+                            <i class="fas fa-heart"></i>
+                            <p>输入你的名字，看看🥬给你留了什么话</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title"><i class="fas fa-history"></i> 🥬的温馨时光线</h2>
+                    <div class="timeline-filter" id="timeline-filter">
+                        <button class="filter-btn active" data-filter="all">全部</button>
+                        <button class="filter-btn" data-filter="message">留言</button>
+                        <button class="filter-btn" data-filter="photo">照片</button>
+                    </div>
+                    <div id="timeline-section">
+                        <div class="no-data">
+                            <i class="fas fa-clock"></i>
+                            <p>找到你的档案后，可以在这里查看🥬为你记录的时光</p>
+                        </div>
+                    </div>
+                    
+                    <div class="hidden" id="new-message-section">
+                        <div class="input-group">
+                            <label for="user-message">给🥬的留言</label>
+                            <textarea id="user-message" placeholder="想对🥬说些什么呢？"></textarea>
+                        </div>
+                        <button class="btn" id="send-message-btn">
+                            <i class="fas fa-paper-plane"></i> 发送给🥬
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <footer>
@@ -176,49 +1184,57 @@
     
     <!-- 好友管理模态框 -->
     <div class="modal-overlay" id="manage-friend-modal">
-        <!-- ... 保持原有的模态框 ... -->
-    </div>
-    
-    <!-- 数据备份/恢复模态框 -->
-    <div class="modal-overlay" id="data-modal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title"><i class="fas fa-database"></i> 数据管理</h3>
-                <button class="close-modal" id="close-data-modal">
+                <h3 class="modal-title"><i class="fas fa-user-edit"></i> 管理好友档案</h3>
+                <button class="close-modal" id="close-manage-modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
             <div class="modal-content">
-                <div class="section">
-                    <h3 class="section-title"><i class="fas fa-download"></i> 备份数据</h3>
-                    <p>将当前所有好友档案数据备份到文件中：</p>
-                    <button class="btn" id="export-data-btn">
-                        <i class="fas fa-file-export"></i> 导出数据文件
-                    </button>
+                <div class="input-group">
+                    <label>好友姓名</label>
+                    <input type="text" id="manage-friend-name" readonly>
                 </div>
                 
-                <div class="section">
-                    <h3 class="section-title"><i class="fas fa-upload"></i> 恢复数据</h3>
-                    <p>从备份文件中恢复好友档案数据：</p>
-                    <div class="input-group">
-                        <label for="import-data-file">选择备份文件</label>
-                        <input type="file" id="import-data-file" accept=".json">
-                    </div>
-                    <button class="btn" id="import-data-btn">
-                        <i class="fas fa-file-import"></i> 导入数据
-                    </button>
+                <div class="input-group">
+                    <label>🥬的留言（可编辑）</label>
+                    <textarea id="manage-admin-message" placeholder="编辑🥬想对好友说的话..."></textarea>
                 </div>
                 
-                <div class="section">
-                    <h3 class="section-title"><i class="fas fa-trash-alt"></i> 数据统计</h3>
-                    <p>当前数据状态：</p>
-                    <div id="data-stats">
-                        <p>好友数量：<span id="friends-count">0</span></p>
-                        <p>总照片数量：<span id="photos-count-total">0</span></p>
-                        <p>总留言数量：<span id="messages-count-total">0</span></p>
-                        <p>最后更新时间：<span id="last-updated">从未</span></p>
+                <div class="input-group">
+                    <label>已上传的照片</label>
+                    <div class="existing-photos" id="existing-photos">
+                        <!-- 已有照片将在这里显示 -->
                     </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>添加新照片 <span id="manage-photos-count" class="photos-count">0</span></label>
+                    <div class="photos-upload" id="manage-photos-upload">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #A8E6CF; margin-bottom: 15px;"></i>
+                        <p>点击此处添加新照片（支持多选）</p>
+                        <p style="font-size: 0.9rem; color: #7C9EB2; margin-top: 5px;">按住 Ctrl 或 Shift 键可以选择多张照片</p>
+                    </div>
+                    <input type="file" id="manage-photos-input" accept="image/*" multiple style="display: none;">
+                    <div id="manage-photos-preview" class="photos-preview">
+                        <!-- 新照片预览将在这里动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>🥬的新留言</label>
+                    <textarea id="manage-new-message" placeholder="添加一条新的留言..."></textarea>
+                </div>
+                
+                <div class="input-group" style="display: flex; gap: 15px;">
+                    <button class="btn" id="save-manage-btn">
+                        <i class="fas fa-save"></i> 保存更改
+                    </button>
+                    <button class="btn" id="add-message-btn" style="background: linear-gradient(90deg, #7C9EB2 0%, #A8E6CF 100%);">
+                        <i class="fas fa-comment"></i> 仅添加留言
+                    </button>
                 </div>
             </div>
         </div>
@@ -231,17 +1247,7 @@
         // 等待DOM完全加载
         document.addEventListener('DOMContentLoaded', function() {
             
-            console.log("🥬 页面脚本已成功加载 - GitHub Pages优化版");
-            
-            // ==================== 关键修复：GitHub Pages 兼容性增强 ====================
-            
-            // 1. 数据存储增强 - 使用多重存储策略
-            const STORAGE_KEY = 've_space_friends_data_v2'; // 使用新的key避免冲突
-            const BACKUP_KEY = 've_space_friends_backup'; // 备份key
-            
-            // 2. 添加版本控制，防止数据结构变化导致的问题
-            const DATA_VERSION = '2.0.0';
-            const VERSION_KEY = 've_space_data_version';
+            console.log("🥬 页面脚本已成功加载");
             
             // 纯色头像颜色数组
             const avatarColors = [
@@ -252,82 +1258,6 @@
                 'avatar-color-5',
                 'avatar-color-6'
             ];
-            
-            // DOM 元素
-            const adminBtn = document.getElementById('admin-btn');
-            const userBtn = document.getElementById('user-btn');
-            const adminView = document.getElementById('admin-view');
-            const userView = document.getElementById('user-view');
-            const passwordSection = document.getElementById('password-section');
-            const adminContent = document.getElementById('admin-content');
-            const loginBtn = document.getElementById('login-btn');
-            const adminPasswordInput = document.getElementById('admin-password');
-            const friendForm = document.getElementById('friend-form');
-            const friendNameInput = document.getElementById('friend-name');
-            const adminMessageInput = document.getElementById('admin-message');
-            const photosUpload = document.getElementById('photos-upload');
-            const photosInput = document.getElementById('photos-input');
-            const photosPreview = document.getElementById('photos-preview');
-            const photosCount = document.getElementById('photos-count');
-            const friendList = document.getElementById('friend-list');
-            const userNameInput = document.getElementById('user-name');
-            const searchBtn = document.getElementById('search-btn');
-            const userResult = document.getElementById('user-result');
-            const timelineSection = document.getElementById('timeline-section');
-            const newMessageSection = document.getElementById('new-message-section');
-            const userMessageInput = document.getElementById('user-message');
-            const sendMessageBtn = document.getElementById('send-message-btn');
-            const notificationContainer = document.getElementById('notification-container');
-            const timelineFilter = document.getElementById('timeline-filter');
-            const adminBackBtn = document.getElementById('admin-back-btn');
-            const userBackBtn = document.getElementById('user-back-btn');
-            const dataStatus = document.getElementById('data-status');
-            const backupBtn = document.getElementById('backup-btn');
-            
-            // 管理模态框元素
-            const manageFriendModal = document.getElementById('manage-friend-modal');
-            const closeManageModalBtn = document.getElementById('close-manage-modal');
-            const manageFriendNameInput = document.getElementById('manage-friend-name');
-            const manageAdminMessageInput = document.getElementById('manage-admin-message');
-            const existingPhotosContainer = document.getElementById('existing-photos');
-            const managePhotosUpload = document.getElementById('manage-photos-upload');
-            const managePhotosInput = document.getElementById('manage-photos-input');
-            const managePhotosPreview = document.getElementById('manage-photos-preview');
-            const managePhotosCount = document.getElementById('manage-photos-count');
-            const manageNewMessageInput = document.getElementById('manage-new-message');
-            const saveManageBtn = document.getElementById('save-manage-btn');
-            const addMessageBtn = document.getElementById('add-message-btn');
-            
-            // 数据管理模态框元素
-            const dataModal = document.getElementById('data-modal');
-            const closeDataModalBtn = document.getElementById('close-data-modal');
-            const exportDataBtn = document.getElementById('export-data-btn');
-            const importDataFile = document.getElementById('import-data-file');
-            const importDataBtn = document.getElementById('import-data-btn');
-            const friendsCountSpan = document.getElementById('friends-count');
-            const photosCountTotalSpan = document.getElementById('photos-count-total');
-            const messagesCountTotalSpan = document.getElementById('messages-count-total');
-            const lastUpdatedSpan = document.getElementById('last-updated');
-            
-            // 存储已选择但未上传的照片（创建新档案）
-            let selectedPhotos = [];
-            // 存储已选择但未上传的照片（管理档案）
-            let selectedManagePhotos = [];
-            
-            // 当前选中的好友（用户视角）
-            let currentFriend = null;
-            // 当前时间线过滤器
-            let currentFilter = "all";
-            // 当前正在管理的好友
-            let managingFriend = null;
-            
-            // 管理员密码
-            const ADMIN_PASSWORD = "v05708";
-            
-            // 主数据变量
-            let friendsData = [];
-            
-            // ==================== 增强的数据存储函数 ====================
             
             // 根据名字获取头像颜色
             function getAvatarColor(name) {
@@ -362,353 +1292,203 @@
                 }
             }
             
-            // ==================== 修复：增强的数据加载和保存 ====================
-            
-            // 检查存储可用性
-            function isStorageAvailable() {
-                try {
-                    const testKey = '__storage_test__';
-                    localStorage.setItem(testKey, testKey);
-                    localStorage.removeItem(testKey);
-                    return true;
-                } catch (e) {
-                    return false;
-                }
-            }
-            
-            // 增强的数据加载函数 - 修复GitHub Pages兼容性
+            // 从localStorage读取数据（修复版）
             function loadFriendsDataFromStorage() {
-                console.log("开始从存储加载数据...");
-                
-                // 检查存储是否可用
-                if (!isStorageAvailable()) {
-                    console.error("localStorage不可用！");
-                    showNotification('浏览器存储不可用，数据将不会保存', 'error');
-                    return getDefaultData();
-                }
-                
-                // 尝试从多个可能的key加载数据（兼容旧版本）
-                const possibleKeys = [
-                    STORAGE_KEY,
-                    'friendsData',
-                    've_space_friends_data',
-                    've_space_8_data'
-                ];
-                
-                let loadedData = null;
-                
-                for (const key of possibleKeys) {
-                    try {
-                        const stored = localStorage.getItem(key);
-                        if (stored) {
-                            const parsed = JSON.parse(stored);
-                            if (Array.isArray(parsed)) {
-                                console.log(`从 ${key} 加载数据成功，数量: ${parsed.length}`);
-                                loadedData = parsed;
-                                break;
-                            }
-                        }
-                    } catch (e) {
-                        console.warn(`无法从 ${key} 加载数据:`, e);
-                    }
-                }
-                
-                // 检查版本兼容性
-                const storedVersion = localStorage.getItem(VERSION_KEY);
-                if (storedVersion && storedVersion !== DATA_VERSION) {
-                    console.log(`版本不匹配: 存储版本 ${storedVersion}, 当前版本 ${DATA_VERSION}`);
-                    // 可以在这里添加版本迁移逻辑
-                }
-                
-                // 如果没有找到数据，使用默认数据
-                if (!loadedData || !Array.isArray(loadedData)) {
-                    console.log("没有找到有效数据，使用默认数据");
-                    loadedData = getDefaultData();
+                try {
+                    const storedData = localStorage.getItem('friendsData');
+                    console.log("从localStorage读取数据:", storedData);
                     
-                    // 立即保存默认数据
-                    setTimeout(() => {
-                        saveFriendsDataToStorage(loadedData);
-                    }, 100);
+                    if (!storedData || storedData === 'undefined') {
+                        console.log("localStorage中没有数据或数据无效，使用默认数据");
+                        return [
+                            {
+                                id: 1,
+                                name: "小可爱",
+                                adminMessage: "亲爱的小可爱，认识你是我最开心的事情！每次和你聊天都感觉特别温暖，希望我们的友谊长存！",
+                                avatarColor: 'avatar-color-1',
+                                photos: [
+                                    {url: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80", time: "2023-10-10 14:30", type: "photo"},
+                                    {url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80", time: "2023-10-12 09:15", type: "photo"},
+                                    {url: "https://images.unsplash.com/photo-1519281682544-5f37c4b14c47?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80", time: "2023-10-15 18:45", type: "photo"}
+                                ],
+                                messages: [
+                                    { sender: "🥬", content: "亲爱的小可爱，认识你是我最开心的事情！每次和你聊天都感觉特别温暖，希望我们的友谊长存！", time: "2023-10-01 12:00", type: "message" },
+                                    { sender: "🥬", content: "最近天气转凉了，记得多穿衣服哦！", time: "2023-10-16 09:15", type: "message" },
+                                    { sender: "小可爱", content: "🥬，谢谢你这么温暖的留言！我也超级喜欢和你做朋友！", time: "2023-10-15 14:30", type: "message" },
+                                    { sender: "小可爱", content: "你也是！周末有空一起喝奶茶吗？", time: "2023-10-16 18:45", type: "message" }
+                                ],
+                                timeline: []
+                            },
+                            {
+                                id: 2,
+                                name: "阳光",
+                                adminMessage: "阳光，你就像你的名字一样，总是能带给我正能量！谢谢你一直以来的支持和鼓励～",
+                                avatarColor: 'avatar-color-2',
+                                photos: [
+                                    {url: "https://images.unsplash.com/photo-1519058082700-08a0b56da9b4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80", time: "2023-10-05 11:20", type: "photo"},
+                                    {url: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80", time: "2023-10-08 16:45", type: "photo"}
+                                ],
+                                messages: [
+                                    { sender: "🥬", content: "阳光，你就像你的名字一样，总是能带给我正能量！谢谢你一直以来的支持和鼓励～", time: "2023-10-01 10:30", type: "message" },
+                                    { sender: "阳光", content: "🥬你太会夸人了！和你在一起总是很开心！", time: "2023-10-10 11:20", type: "message" }
+                                ],
+                                timeline: []
+                            }
+                        ];
+                    }
+                    
+                    const parsedData = JSON.parse(storedData);
+                    
+                    // 确保数据是数组
+                    if (!Array.isArray(parsedData)) {
+                        console.error("存储的数据不是数组，使用默认数据");
+                        return [];
+                    }
+                    
+                    console.log("成功从localStorage读取数据，数量:", parsedData.length);
+                    return parsedData;
+                    
+                } catch (error) {
+                    console.error("从localStorage读取数据失败:", error);
+                    return [];
                 }
-                
-                // 确保数据完整性
-                loadedData = ensureDataIntegrity(loadedData);
-                
-                console.log("最终加载的数据:", loadedData);
-                return loadedData;
             }
             
-            // 增强的数据保存函数 - 修复GitHub Pages兼容性
+            // 保存数据到localStorage（修复版）
             function saveFriendsDataToStorage(data) {
-                console.log("开始保存数据到存储...");
-                
-                if (!isStorageAvailable()) {
-                    console.error("无法保存：localStorage不可用");
-                    showNotification('无法保存数据，浏览器存储不可用', 'error');
-                    return false;
-                }
-                
                 try {
-                    // 确保数据完整性
-                    const cleanData = ensureDataIntegrity(data);
+                    const dataString = JSON.stringify(data);
+                    console.log("保存数据到localStorage:", data);
+                    localStorage.setItem('friendsData', dataString);
+                    console.log("数据保存成功，当前数据数量:", data.length);
                     
-                    // 保存到主存储
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanData));
-                    
-                    // 同时保存到备份存储（防止主存储损坏）
-                    localStorage.setItem(BACKUP_KEY, JSON.stringify(cleanData));
-                    
-                    // 保存版本号
-                    localStorage.setItem(VERSION_KEY, DATA_VERSION);
-                    
-                    // 保存时间戳
-                    localStorage.setItem('ve_space_last_saved', new Date().toISOString());
-                    
-                    console.log("数据保存成功:", cleanData);
-                    
-                    // 更新数据状态指示器
-                    updateDataStatus(true);
-                    
-                    return true;
-                } catch (error) {
-                    console.error("保存数据失败:", error);
-                    
-                    // 尝试使用更小的数据块保存
-                    try {
-                        const simpleData = data.map(friend => ({
-                            id: friend.id,
-                            name: friend.name,
-                            adminMessage: friend.adminMessage,
-                            avatarColor: friend.avatarColor,
-                            photos: friend.photos || [],
-                            messages: friend.messages || []
-                        }));
-                        
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(simpleData));
-                        console.log("使用简化数据保存成功");
-                        updateDataStatus(true);
+                    // 验证保存是否成功
+                    const stored = localStorage.getItem('friendsData');
+                    if (stored === dataString) {
+                        console.log("数据验证成功");
                         return true;
-                    } catch (e) {
-                        console.error("简化数据保存也失败:", e);
-                        updateDataStatus(false);
-                        showNotification('数据保存失败，请检查浏览器存储', 'error');
+                    } else {
+                        console.error("数据验证失败");
                         return false;
                     }
+                } catch (error) {
+                    console.error("保存数据到localStorage失败:", error);
+                    return false;
                 }
             }
             
-            // 确保数据完整性
-            function ensureDataIntegrity(data) {
-                if (!Array.isArray(data)) {
-                    console.error("数据不是数组，重置为默认数据");
-                    return getDefaultData();
-                }
-                
-                return data.map(friend => {
-                    // 确保每个好友都有必需的属性
-                    const cleanFriend = {
-                        id: friend.id || Date.now(),
-                        name: friend.name || '无名好友',
-                        adminMessage: friend.adminMessage || "🥬想对你说：很高兴认识你！",
-                        avatarColor: friend.avatarColor || getAvatarColor(friend.name),
-                        photos: Array.isArray(friend.photos) ? friend.photos : [],
-                        messages: Array.isArray(friend.messages) ? friend.messages : [],
-                        timeline: []
-                    };
-                    
-                    // 生成时间线
-                    updateFriendTimeline(cleanFriend);
-                    
-                    return cleanFriend;
-                });
-            }
+            // 初始化数据（关键修复）
+            let friendsData = loadFriendsDataFromStorage();
             
-            // 获取默认数据
-            function getDefaultData() {
-                return [
-                    {
-                        id: 1,
-                        name: "小可爱",
-                        adminMessage: "亲爱的小可爱，认识你是我最开心的事情！每次和你聊天都感觉特别温暖，希望我们的友谊长存！",
-                        avatarColor: 'avatar-color-1',
-                        photos: [
-                            {url: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80", time: "2023-10-10 14:30", type: "photo"},
-                            {url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80", time: "2023-10-12 09:15", type: "photo"},
-                            {url: "https://images.unsplash.com/photo-1519281682544-5f37c4b14c47?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80", time: "2023-10-15 18:45", type: "photo"}
-                        ],
-                        messages: [
-                            { sender: "🥬", content: "亲爱的小可爱，认识你是我最开心的事情！每次和你聊天都感觉特别温暖，希望我们的友谊长存！", time: "2023-10-01 12:00", type: "message" },
-                            { sender: "🥬", content: "最近天气转凉了，记得多穿衣服哦！", time: "2023-10-16 09:15", type: "message" },
-                            { sender: "小可爱", content: "🥬，谢谢你这么温暖的留言！我也超级喜欢和你做朋友！", time: "2023-10-15 14:30", type: "message" },
-                            { sender: "小可爱", content: "你也是！周末有空一起喝奶茶吗？", time: "2023-10-16 18:45", type: "message" }
-                        ],
-                        timeline: []
-                    },
-                    {
-                        id: 2,
-                        name: "阳光",
-                        adminMessage: "阳光，你就像你的名字一样，总是能带给我正能量！谢谢你一直以来的支持和鼓励～",
-                        avatarColor: 'avatar-color-2',
-                        photos: [
-                            {url: "https://images.unsplash.com/photo-1519058082700-08a0b56da9b4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80", time: "2023-10-05 11:20", type: "photo"},
-                            {url: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80", time: "2023-10-08 16:45", type: "photo"}
-                        ],
-                        messages: [
-                            { sender: "🥬", content: "阳光，你就像你的名字一样，总是能带给我正能量！谢谢你一直以来的支持和鼓励～", time: "2023-10-01 10:30", type: "message" },
-                            { sender: "阳光", content: "🥬你太会夸人了！和你在一起总是很开心！", time: "2023-10-10 11:20", type: "message" }
-                        ],
-                        timeline: []
-                    }
-                ];
-            }
-            
-            // 更新数据状态指示器
-            function updateDataStatus(success) {
-                if (success) {
-                    dataStatus.className = 'data-status online';
-                    dataStatus.innerHTML = '<span>数据已保存 ✓</span>';
+            // 确保所有好友都有正确的时间线
+            function updateTimelineForAllFriends() {
+                friendsData.forEach(friend => {
+                    // 确保有必要的属性
+                    if (!friend.photos) friend.photos = [];
+                    if (!friend.messages) friend.messages = [];
+                    if (!friend.timeline) friend.timeline = [];
                     
-                    // 3秒后恢复普通状态
-                    setTimeout(() => {
-                        dataStatus.innerHTML = '<span>数据已保存</span>';
-                    }, 3000);
-                } else {
-                    dataStatus.className = 'data-status offline';
-                    dataStatus.innerHTML = '<span>数据保存失败 ⚠</span>';
-                }
-            }
-            
-            // 更新好友时间线
-            function updateFriendTimeline(friend) {
-                friend.timeline = [];
-                
-                // 添加所有照片
-                if (friend.photos && friend.photos.length > 0) {
+                    // 合并所有时间线项目
+                    const allItems = [];
+                    
+                    // 添加所有照片
                     friend.photos.forEach(photo => {
-                        friend.timeline.push({
+                        allItems.push({
                             ...photo,
                             sender: "🥬",
                             type: "photo"
                         });
                     });
-                }
-                
-                // 添加所有留言
-                if (friend.messages && friend.messages.length > 0) {
+                    
+                    // 添加所有留言
                     friend.messages.forEach(message => {
-                        friend.timeline.push({
+                        allItems.push({
                             ...message,
                             type: "message"
                         });
                     });
-                }
-                
-                // 按时间排序（最新的在前面）
-                friend.timeline.sort((a, b) => {
-                    try {
-                        return new Date(b.time) - new Date(a.time);
-                    } catch (e) {
-                        return 0;
+                    
+                    // 按时间排序（最新的在前面）
+                    allItems.sort((a, b) => {
+                        try {
+                            return new Date(b.time) - new Date(a.time);
+                        } catch (e) {
+                            return 0;
+                        }
+                    });
+                    
+                    friend.timeline = allItems;
+                    
+                    // 确保有头像颜色
+                    if (!friend.avatarColor) {
+                        friend.avatarColor = getAvatarColor(friend.name);
                     }
                 });
+                
+                // 保存更新后的数据
+                saveFriendsDataToStorage(friendsData);
             }
             
-            // 更新所有好友的时间线
-            function updateAllFriendsTimeline() {
-                friendsData.forEach(friend => {
-                    updateFriendTimeline(friend);
-                });
-            }
+            // 初始化时间线
+            updateTimelineForAllFriends();
             
-            // ==================== 数据备份/恢复功能 ====================
+            // 当前选中的好友（用户视角）
+            let currentFriend = null;
+            // 当前时间线过滤器
+            let currentFilter = "all";
+            // 当前正在管理的好友
+            let managingFriend = null;
             
-            // 导出数据到文件
-            function exportDataToFile() {
-                try {
-                    const dataStr = JSON.stringify(friendsData, null, 2);
-                    const dataBlob = new Blob([dataStr], {type: 'application/json'});
-                    
-                    const url = URL.createObjectURL(dataBlob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `🥬的好友档案备份_${new Date().toISOString().split('T')[0]}.json`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                    
-                    showNotification('数据备份文件已生成，请保存到本地', 'success');
-                } catch (error) {
-                    console.error('导出数据失败:', error);
-                    showNotification('导出数据失败', 'error');
-                }
-            }
+            // 管理员密码
+            const ADMIN_PASSWORD = "v05708";
             
-            // 从文件导入数据
-            function importDataFromFile(file) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    try {
-                        const importedData = JSON.parse(e.target.result);
-                        
-                        if (!Array.isArray(importedData)) {
-                            throw new Error('数据格式不正确');
-                        }
-                        
-                        // 验证导入的数据
-                        const validatedData = ensureDataIntegrity(importedData);
-                        
-                        // 确认是否覆盖现有数据
-                        if (friendsData.length > 0) {
-                            if (confirm(`导入 ${validatedData.length} 个好友档案将覆盖现有的 ${friendsData.length} 个档案。确定要导入吗？`)) {
-                                friendsData = validatedData;
-                                saveFriendsDataToStorage(friendsData);
-                                loadFriendsList();
-                                showNotification(`成功导入 ${validatedData.length} 个好友档案`, 'success');
-                                updateDataStats();
-                                dataModal.classList.remove('active');
-                            }
-                        } else {
-                            friendsData = validatedData;
-                            saveFriendsDataToStorage(friendsData);
-                            loadFriendsList();
-                            showNotification(`成功导入 ${validatedData.length} 个好友档案`, 'success');
-                            updateDataStats();
-                            dataModal.classList.remove('active');
-                        }
-                    } catch (error) {
-                        console.error('导入数据失败:', error);
-                        showNotification('导入失败：文件格式不正确', 'error');
-                    }
-                };
-                
-                reader.readAsText(file);
-            }
+            // DOM 元素
+            const adminBtn = document.getElementById('admin-btn');
+            const userBtn = document.getElementById('user-btn');
+            const adminView = document.getElementById('admin-view');
+            const userView = document.getElementById('user-view');
+            const passwordSection = document.getElementById('password-section');
+            const adminContent = document.getElementById('admin-content');
+            const loginBtn = document.getElementById('login-btn');
+            const adminPasswordInput = document.getElementById('admin-password');
+            const friendForm = document.getElementById('friend-form');
+            const friendNameInput = document.getElementById('friend-name');
+            const adminMessageInput = document.getElementById('admin-message');
+            const photosUpload = document.getElementById('photos-upload');
+            const photosInput = document.getElementById('photos-input');
+            const photosPreview = document.getElementById('photos-preview');
+            const photosCount = document.getElementById('photos-count');
+            const friendList = document.getElementById('friend-list');
+            const userNameInput = document.getElementById('user-name');
+            const searchBtn = document.getElementById('search-btn');
+            const userResult = document.getElementById('user-result');
+            const timelineSection = document.getElementById('timeline-section');
+            const newMessageSection = document.getElementById('new-message-section');
+            const userMessageInput = document.getElementById('user-message');
+            const sendMessageBtn = document.getElementById('send-message-btn');
+            const notificationContainer = document.getElementById('notification-container');
+            const timelineFilter = document.getElementById('timeline-filter');
+            const adminBackBtn = document.getElementById('admin-back-btn');
+            const userBackBtn = document.getElementById('user-back-btn');
             
-            // 更新数据统计
-            function updateDataStats() {
-                friendsCountSpan.textContent = friendsData.length;
-                
-                let totalPhotos = 0;
-                let totalMessages = 0;
-                
-                friendsData.forEach(friend => {
-                    totalPhotos += friend.photos ? friend.photos.length : 0;
-                    totalMessages += friend.messages ? friend.messages.length : 0;
-                });
-                
-                photosCountTotalSpan.textContent = totalPhotos;
-                messagesCountTotalSpan.textContent = totalMessages;
-                
-                const lastSaved = localStorage.getItem('ve_space_last_saved');
-                if (lastSaved) {
-                    const date = new Date(lastSaved);
-                    lastUpdatedSpan.textContent = date.toLocaleString('zh-CN');
-                }
-            }
+            // 管理模态框元素
+            const manageFriendModal = document.getElementById('manage-friend-modal');
+            const closeManageModalBtn = document.getElementById('close-manage-modal');
+            const manageFriendNameInput = document.getElementById('manage-friend-name');
+            const manageAdminMessageInput = document.getElementById('manage-admin-message');
+            const existingPhotosContainer = document.getElementById('existing-photos');
+            const managePhotosUpload = document.getElementById('manage-photos-upload');
+            const managePhotosInput = document.getElementById('manage-photos-input');
+            const managePhotosPreview = document.getElementById('manage-photos-preview');
+            const managePhotosCount = document.getElementById('manage-photos-count');
+            const manageNewMessageInput = document.getElementById('manage-new-message');
+            const saveManageBtn = document.getElementById('save-manage-btn');
+            const addMessageBtn = document.getElementById('add-message-btn');
             
-            // ==================== 主业务逻辑 ====================
+            // 存储已选择但未上传的照片（创建新档案）
+            let selectedPhotos = [];
+            // 存储已选择但未上传的照片（管理档案）
+            let selectedManagePhotos = [];
             
             // 视角切换
             adminBtn.addEventListener('click', () => {
@@ -866,7 +1646,7 @@
                 });
             }
             
-            // 创建好友档案 - GitHub Pages优化版
+            // 创建好友档案（修复版 - 确保保存到localStorage）
             friendForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 
@@ -935,9 +1715,9 @@
                 friendsData.push(newFriend);
                 
                 // 更新时间线
-                updateFriendTimeline(newFriend);
+                updateTimelineForAllFriends();
                 
-                // 保存到本地存储 - 使用增强的保存函数
+                // 保存到本地存储
                 const saveSuccess = saveFriendsDataToStorage(friendsData);
                 
                 if (saveSuccess) {
@@ -945,27 +1725,31 @@
                     friendForm.reset();
                     selectedPhotos = [];
                     updatePhotosPreview();
-                    photosUpload.style.display = 'block';
+                    photosUpload.style.display = 'block'; // 确保上传区域重新显示
                     
                     // 立即重新加载好友列表
                     setTimeout(() => {
                         loadFriendsList();
                         showNotification(`好友 "${name}" 的档案创建成功！🥬`, 'success');
-                    }, 100);
+                        console.log("创建好友后数据:", friendsData);
+                    }, 50);
                 } else {
+                    showNotification('保存失败，请重试！', 'error');
                     // 如果保存失败，移除刚刚添加的好友
                     friendsData = friendsData.filter(f => f.id !== newId);
-                    showNotification('保存失败，请重试！', 'error');
                 }
             });
             
-            // 加载好友列表
+            // 加载好友列表（修复版）
             function loadFriendsList() {
-                console.log("开始加载好友列表...");
+                console.log("开始加载好友列表...当前数据:", friendsData);
                 
                 // 确保使用最新的数据
-                friendsData = loadFriendsDataFromStorage();
-                console.log("加载后的数据:", friendsData);
+                const freshData = loadFriendsDataFromStorage();
+                if (freshData.length > 0) {
+                    friendsData = freshData;
+                    console.log("重新加载数据后的friendsData:", friendsData);
+                }
                 
                 if (friendsData.length === 0) {
                     friendList.innerHTML = `
@@ -1097,7 +1881,7 @@
                         if (confirm('确定要删除这张照片吗？')) {
                             managingFriend.photos.splice(photoIndex, 1);
                             // 更新时间线
-                            updateFriendTimeline(managingFriend);
+                            updateTimelineForAllFriends();
                             // 保存到本地存储
                             saveFriendsDataToStorage(friendsData);
                             // 重新显示已有照片
@@ -1235,7 +2019,7 @@
                 }
                 
                 // 更新时间线
-                updateFriendTimeline(managingFriend);
+                updateTimelineForAllFriends();
                 
                 // 保存到本地存储
                 const saveSuccess = saveFriendsDataToStorage(friendsData);
@@ -1252,7 +2036,7 @@
                     // 重新加载好友列表
                     setTimeout(() => {
                         loadFriendsList();
-                    }, 100);
+                    }, 50);
                     
                     // 关闭模态框
                     manageFriendModal.classList.remove('active');
@@ -1292,7 +2076,7 @@
                 managingFriend.messages.push(newMessage);
                 
                 // 更新时间线
-                updateFriendTimeline(managingFriend);
+                updateTimelineForAllFriends();
                 
                 // 保存到本地存储
                 const saveSuccess = saveFriendsDataToStorage(friendsData);
@@ -1307,7 +2091,7 @@
                     // 重新加载好友列表
                     setTimeout(() => {
                         loadFriendsList();
-                    }, 100);
+                    }, 50);
                     
                     showNotification(`已为 "${managingFriend.name}" 添加新留言成功！🥬`, 'success');
                 } else {
@@ -1351,7 +2135,7 @@
                     friendsData = friendsData.filter(f => f.id !== friendId);
                     
                     // 更新时间线
-                    updateAllFriendsTimeline();
+                    updateTimelineForAllFriends();
                     
                     // 保存到本地存储
                     const saveSuccess = saveFriendsDataToStorage(friendsData);
@@ -1361,7 +2145,7 @@
                         setTimeout(() => {
                             loadFriendsList();
                             showNotification(`好友 "${friend.name}" 的档案已删除成功！`, 'info');
-                        }, 100);
+                        }, 50);
                     } else {
                         showNotification('删除失败，请重试！', 'error');
                     }
@@ -1405,7 +2189,10 @@
                 }
                 
                 // 确保使用最新的数据
-                friendsData = loadFriendsDataFromStorage();
+                const freshData = loadFriendsDataFromStorage();
+                if (freshData.length > 0) {
+                    friendsData = freshData;
+                }
                 
                 const friend = friendsData.find(f => f.name.toLowerCase() === name.toLowerCase());
                 
@@ -1466,7 +2253,7 @@
             // 显示时间线
             function displayTimeline(friend) {
                 // 确保时间线是最新的
-                updateFriendTimeline(friend);
+                updateTimelineForAllFriends();
                 
                 // 过滤时间线项目
                 let filteredTimeline = friend.timeline;
@@ -1570,7 +2357,7 @@
                 currentFriend.messages.push(newMessage);
                 
                 // 更新时间线
-                updateFriendTimeline(currentFriend);
+                updateTimelineForAllFriends();
                 
                 // 保存到本地存储
                 const saveSuccess = saveFriendsDataToStorage(friendsData);
@@ -1617,7 +2404,7 @@
                         currentFriend.messages.push(replyMessage);
                         
                         // 更新时间线
-                        updateFriendTimeline(currentFriend);
+                        updateTimelineForAllFriends();
                         
                         // 保存到本地存储
                         saveFriendsDataToStorage(friendsData);
@@ -1649,61 +2436,13 @@
                 }, 3000);
             }
             
-            // ==================== 数据管理功能 ====================
-            
-            // 备份按钮点击事件
-            backupBtn.addEventListener('click', () => {
-                dataModal.classList.add('active');
-                updateDataStats();
-            });
-            
-            // 导出数据按钮
-            exportDataBtn.addEventListener('click', exportDataToFile);
-            
-            // 导入数据按钮
-            importDataBtn.addEventListener('click', () => {
-                if (importDataFile.files.length > 0) {
-                    importDataFromFile(importDataFile.files[0]);
-                } else {
-                    showNotification('请先选择备份文件', 'error');
-                }
-            });
-            
-            // 关闭数据模态框
-            closeDataModalBtn.addEventListener('click', () => {
-                dataModal.classList.remove('active');
-            });
-            
-            // 点击模态框外部关闭
-            dataModal.addEventListener('click', (e) => {
-                if (e.target === dataModal) {
-                    dataModal.classList.remove('active');
-                }
-            });
-            
-            // ==================== 页面加载初始化 ====================
-            
             // 初始化页面
             function init() {
-                console.log("初始化页面...");
-                
-                // 检查存储可用性
-                if (!isStorageAvailable()) {
-                    showNotification('⚠️ 您的浏览器可能禁用了本地存储，数据将无法保存！', 'error');
-                }
-                
-                // 加载数据
-                friendsData = loadFriendsDataFromStorage();
-                console.log("初始化的friendsData:", friendsData);
-                
-                // 更新时间线
-                updateAllFriendsTimeline();
+                // 初始化时间线
+                updateTimelineForAllFriends();
                 
                 // 加载好友列表
                 loadFriendsList();
-                
-                // 显示数据状态
-                updateDataStatus(true);
                 
                 // 添加一些交互效果
                 document.querySelectorAll('.btn').forEach(btn => {
@@ -1719,22 +2458,6 @@
                         btn.style.transform = 'translateY(0)';
                     });
                 });
-                
-                // 页面卸载前保存数据
-                window.addEventListener('beforeunload', () => {
-                    console.log("页面关闭前保存数据...");
-                    saveFriendsDataToStorage(friendsData);
-                });
-                
-                // 定期自动保存（每30秒）
-                setInterval(() => {
-                    if (friendsData.length > 0) {
-                        console.log("自动保存数据...");
-                        saveFriendsDataToStorage(friendsData);
-                    }
-                }, 30000);
-                
-                console.log("页面初始化完成！");
             }
             
             // 页面加载完成后初始化
