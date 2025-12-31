@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🥬的温馨时光相册 - 好友档案管理系统</title>
+    <title>🥬的温馨时光留言簿 - 好友档案管理系统</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+    <!-- 引入 Supabase 客户端 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -843,6 +845,31 @@
             color: var(--accent-color);
             font-family: 'Ma Shan Zheng', cursive;
         }
+        
+        /* 网络状态指示器 */
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            font-family: 'Ma Shan Zheng', cursive;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .connection-status.online {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .connection-status.offline {
+            background-color: #FF7A7A;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -853,12 +880,18 @@
     <div class="decoration dec-4">🥬</div>
     <div class="decoration dec-5">🥬</div>
     
+    <!-- 网络状态指示器 -->
+    <div id="connection-status" class="connection-status hidden">
+        <i class="fas fa-wifi"></i>
+        <span>正在连接...</span>
+    </div>
+    
     <div class="container">
         <header>
             <div class="title-container">
                 <h1><span>🥬</span> 的小宇宙 <span>🥬</span></h1>
-                <p>记录🥬和朋友们的美好时光，留下温暖回忆！</p>
-                <div class="greeting">欢迎来到🥬的温馨时光小屋！</div>
+                <p>记录🥬和朋友们的美好时光，留言互动，云端保存！</p>
+                <div class="greeting" id="greeting">正在连接云端数据库...</div>
             </div>
         </header>
         
@@ -882,6 +915,9 @@
                 <button class="btn" id="login-btn">
                     <i class="fas fa-door-open"></i> 进入🥬的时光小屋
                 </button>
+                <div class="connection-info" style="margin-top: 15px; color: var(--dark-color); font-size: 0.9rem;">
+                    <i class="fas fa-database"></i> 数据云端保存，多设备同步
+                </div>
             </div>
             
             <div class="admin-view hidden" id="admin-content">
@@ -917,7 +953,7 @@
                         <!-- 好友列表将通过JS动态生成 -->
                         <div class="no-data">
                             <i class="fas fa-users"></i>
-                            <p>还没有好友档案，快为你的朋友创建一个吧！</p>
+                            <p>正在从云端加载好友档案...</p>
                         </div>
                     </div>
                 </div>
@@ -946,6 +982,9 @@
                         <div class="no-data">
                             <i class="fas fa-heart"></i>
                             <p>输入你的名字，看看🥬给你留了什么话</p>
+                            <p style="font-size: 1rem; color: var(--dark-color); margin-top: 10px;">
+                                <i class="fas fa-cloud"></i> 所有数据云端保存，多设备同步
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -977,8 +1016,11 @@
         </div>
         
         <footer>
-            <p>© 🥬的温馨时光相册 | 所有数据都会保存在你的浏览器中，请放心使用</p>
+            <p>© 🥬的温馨时光留言簿 | 数据云端保存，多设备同步访问</p>
             <p style="margin-top: 10px;">🥬 会一直记录与每位朋友的美好时光 🥬</p>
+            <p style="font-size: 0.9rem; margin-top: 5px; color: var(--dark-color);">
+                <i class="fas fa-cloud"></i> 云端存储保障数据安全
+            </p>
         </footer>
     </div>
     
@@ -1029,6 +1071,31 @@
             
             console.log("🥬 页面脚本已成功加载");
             
+            // ========== 配置部分 ==========
+            // 注意：将以下配置替换为你自己的 Supabase 配置
+            const SUPABASE_CONFIG = {
+                url: 'https://dqgtsupdmtzlbvsunelk.supabase.co', 
+                key: 'sb_publishable_IE-qGn0KjRLgmySR9C3Fvw_A3QXeReN'  // 替换为你的 Supabase anon key
+            };
+            
+            // 管理员密码（可以修改为你自己的密码）
+            const ADMIN_PASSWORD = "v05708";
+            
+            // ========== 初始化 Supabase ==========
+            let supabase;
+            let isOnline = false;
+            
+            try {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
+                console.log("Supabase 客户端初始化成功");
+                updateConnectionStatus('online', '已连接到云端数据库');
+            } catch (error) {
+                console.error("初始化 Supabase 失败:", error);
+                updateConnectionStatus('offline', '连接数据库失败，请检查配置');
+                showNotification('云端数据库连接失败，请检查网络和配置', 'error');
+            }
+            
+            // ========== 全局变量 ==========
             // 纯色头像颜色数组
             const avatarColors = [
                 'avatar-color-1',
@@ -1039,8 +1106,76 @@
                 'avatar-color-6'
             ];
             
+            // 当前选中的好友（用户视角）
+            let currentFriend = null;
+            // 当前时间线过滤器
+            let currentFilter = "all";
+            // 当前正在管理的好友
+            let managingFriend = null;
+            // 好友数据缓存
+            let friendsDataCache = [];
+            
+            // ========== DOM 元素 ==========
+            const adminBtn = document.getElementById('admin-btn');
+            const userBtn = document.getElementById('user-btn');
+            const adminView = document.getElementById('admin-view');
+            const userView = document.getElementById('user-view');
+            const passwordSection = document.getElementById('password-section');
+            const adminContent = document.getElementById('admin-content');
+            const loginBtn = document.getElementById('login-btn');
+            const adminPasswordInput = document.getElementById('admin-password');
+            const friendForm = document.getElementById('friend-form');
+            const friendNameInput = document.getElementById('friend-name');
+            const adminMessageInput = document.getElementById('admin-message');
+            const friendList = document.getElementById('friend-list');
+            const userNameInput = document.getElementById('user-name');
+            const searchBtn = document.getElementById('search-btn');
+            const userResult = document.getElementById('user-result');
+            const timelineSection = document.getElementById('timeline-section');
+            const newMessageSection = document.getElementById('new-message-section');
+            const userMessageInput = document.getElementById('user-message');
+            const sendMessageBtn = document.getElementById('send-message-btn');
+            const notificationContainer = document.getElementById('notification-container');
+            const timelineFilter = document.getElementById('timeline-filter');
+            const adminBackBtn = document.getElementById('admin-back-btn');
+            const userBackBtn = document.getElementById('user-back-btn');
+            const connectionStatus = document.getElementById('connection-status');
+            const greeting = document.getElementById('greeting');
+            
+            // 管理模态框元素
+            const manageFriendModal = document.getElementById('manage-friend-modal');
+            const closeManageModalBtn = document.getElementById('close-manage-modal');
+            const manageFriendNameInput = document.getElementById('manage-friend-name');
+            const manageAdminMessageInput = document.getElementById('manage-admin-message');
+            const manageNewMessageInput = document.getElementById('manage-new-message');
+            const saveManageBtn = document.getElementById('save-manage-btn');
+            const addMessageBtn = document.getElementById('add-message-btn');
+            
+            // ========== 辅助函数 ==========
+            
+            // 更新网络状态显示
+            function updateConnectionStatus(status, message) {
+                if (!connectionStatus) return;
+                
+                isOnline = status === 'online';
+                connectionStatus.className = `connection-status ${status}`;
+                connectionStatus.innerHTML = `<i class="fas fa-${status === 'online' ? 'wifi' : 'exclamation-triangle'}"></i> <span>${message}</span>`;
+                
+                if (status === 'online') {
+                    connectionStatus.classList.remove('hidden');
+                    setTimeout(() => {
+                        connectionStatus.classList.add('hidden');
+                    }, 3000);
+                    if (greeting) greeting.textContent = '欢迎来到🥬的温馨时光小屋！';
+                } else {
+                    connectionStatus.classList.remove('hidden');
+                    if (greeting) greeting.textContent = '云端连接失败，数据可能无法同步';
+                }
+            }
+            
             // 根据名字获取头像颜色
             function getAvatarColor(name) {
+                if (!name) return 'avatar-color-1';
                 let sum = 0;
                 for (let i = 0; i < name.length; i++) {
                     sum += name.charCodeAt(i);
@@ -1071,106 +1206,479 @@
                 }
             }
             
-            // 模拟数据 - 初始好友档案
-            let friendsData = JSON.parse(localStorage.getItem('friendsData')) || [
-                {
-                    id: 1,
-                    name: "小可爱",
-                    adminMessage: "亲爱的小可爱，认识你是我最开心的事情！每次和你聊天都感觉特别温暖，希望我们的友谊长存！",
-                    avatarColor: 'avatar-color-1',
-                    messages: [
-                        { sender: "🥬", content: "亲爱的小可爱，认识你是我最开心的事情！每次和你聊天都感觉特别温暖，希望我们的友谊长存！", time: "2023-10-01 12:00", type: "message" },
-                        { sender: "🥬", content: "最近天气转凉了，记得多穿衣服哦！", time: "2023-10-16 09:15", type: "message" },
-                        { sender: "小可爱", content: "🥬，谢谢你这么温暖的留言！我也超级喜欢和你做朋友！", time: "2023-10-15 14:30", type: "message" },
-                        { sender: "小可爱", content: "你也是！周末有空一起喝奶茶吗？", time: "2023-10-16 18:45", type: "message" }
-                    ],
-                    timeline: [] // 这个将由messages生成
-                },
-                {
-                    id: 2,
-                    name: "阳光",
-                    adminMessage: "阳光，你就像你的名字一样，总是能带给我正能量！谢谢你一直以来的支持和鼓励～",
-                    avatarColor: 'avatar-color-2',
-                    messages: [
-                        { sender: "🥬", content: "阳光，你就像你的名字一样，总是能带给我正能量！谢谢你一直以来的支持和鼓励～", time: "2023-10-01 10:30", type: "message" },
-                        { sender: "阳光", content: "🥬你太会夸人了！和你在一起总是很开心！", time: "2023-10-10 11:20", type: "message" }
-                    ],
-                    timeline: []
-                }
-            ];
-            
-            // 为现有数据生成时间线
-            function updateTimelineForAllFriends() {
-                friendsData.forEach(friend => {
-                    if (!friend.messages) friend.messages = [];
-                    
-                    // 合并所有时间线项目
-                    friend.timeline = [];
-                    
-                    // 添加所有留言
+            // 更新时间线
+            function updateFriendTimeline(friend) {
+                if (!friend || !friend.messages) return;
+                
+                friend.timeline = [];
+                
+                // 添加所有留言
+                if (friend.messages && friend.messages.length > 0) {
                     friend.messages.forEach(message => {
                         friend.timeline.push({
                             ...message,
                             type: "message"
                         });
                     });
+                }
+                
+                // 按时间排序（最新的在前面）
+                friend.timeline.sort((a, b) => new Date(b.time) - new Date(a.time));
+            }
+            
+            // ========== 数据操作函数 (Supabase) ==========
+            
+            // 从 Supabase 加载所有好友数据
+            async function loadFriendsData() {
+                if (!supabase) {
+                    showNotification('数据库连接未初始化', 'error');
+                    return [];
+                }
+                
+                try {
+                    updateConnectionStatus('online', '正在从云端加载数据...');
                     
-                    // 按时间排序（最新的在前面）
-                    friend.timeline.sort((a, b) => new Date(b.time) - new Date(a.time));
+                    const { data, error } = await supabase
+                        .from('friends')
+                        .select('*')
+                        .order('created_at', { ascending: false });
                     
-                    // 为已有数据添加颜色属性
-                    if (!friend.avatarColor) {
-                        friend.avatarColor = getAvatarColor(friend.name);
+                    if (error) {
+                        console.error('加载数据失败:', error);
+                        updateConnectionStatus('offline', '加载数据失败');
+                        showNotification('加载数据失败，请检查网络连接', 'error');
+                        return [];
                     }
+                    
+                    console.log('从 Supabase 加载的数据:', data);
+                    
+                    // 转换数据格式
+                    const formattedData = data.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        adminMessage: item.admin_message || '',
+                        avatarColor: item.avatar_color || getAvatarColor(item.name),
+                        messages: item.messages || [],
+                        timeline: item.timeline || [],
+                        created_at: item.created_at
+                    }));
+                    
+                    // 为每个好友更新时间线
+                    formattedData.forEach(friend => updateFriendTimeline(friend));
+                    
+                    friendsDataCache = formattedData;
+                    updateConnectionStatus('online', '数据加载完成');
+                    
+                    return formattedData;
+                } catch (error) {
+                    console.error('加载数据异常:', error);
+                    updateConnectionStatus('offline', '网络连接异常');
+                    showNotification('网络异常，请稍后重试', 'error');
+                    return [];
+                }
+            }
+            
+            // 保存好友数据到 Supabase
+            async function saveFriendData(friend) {
+                if (!supabase) {
+                    showNotification('数据库连接未初始化', 'error');
+                    return null;
+                }
+                
+                try {
+                    updateConnectionStatus('online', '正在保存到云端...');
+                    
+                    // 确保时间线是最新的
+                    updateFriendTimeline(friend);
+                    
+                    const friendData = {
+                        name: friend.name,
+                        admin_message: friend.adminMessage,
+                        avatar_color: friend.avatarColor,
+                        messages: friend.messages,
+                        timeline: friend.timeline,
+                        updated_at: new Date().toISOString()
+                    };
+                    
+                    let result;
+                    
+                    // 如果是新好友（没有 id）
+                    if (!friend.id) {
+                        friendData.created_at = new Date().toISOString();
+                        const { data, error } = await supabase
+                            .from('friends')
+                            .insert([friendData])
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data[0];
+                    } else {
+                        // 更新现有好友
+                        const { data, error } = await supabase
+                            .from('friends')
+                            .update(friendData)
+                            .eq('id', friend.id)
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data[0];
+                    }
+                    
+                    // 更新缓存
+                    await loadFriendsData();
+                    
+                    updateConnectionStatus('online', '保存成功');
+                    return result;
+                } catch (error) {
+                    console.error('保存数据失败:', error);
+                    updateConnectionStatus('offline', '保存失败');
+                    showNotification('保存失败，请检查网络连接', 'error');
+                    return null;
+                }
+            }
+            
+            // 从 Supabase 删除好友
+            async function deleteFriendData(friendId) {
+                if (!supabase) {
+                    showNotification('数据库连接未初始化', 'error');
+                    return false;
+                }
+                
+                try {
+                    updateConnectionStatus('online', '正在从云端删除...');
+                    
+                    const { error } = await supabase
+                        .from('friends')
+                        .delete()
+                        .eq('id', friendId);
+                    
+                    if (error) throw error;
+                    
+                    // 更新缓存
+                    await loadFriendsData();
+                    
+                    updateConnectionStatus('online', '删除成功');
+                    return true;
+                } catch (error) {
+                    console.error('删除数据失败:', error);
+                    updateConnectionStatus('offline', '删除失败');
+                    showNotification('删除失败，请检查网络连接', 'error');
+                    return false;
+                }
+            }
+            
+            // 获取单个好友
+            async function getFriendById(friendId) {
+                if (!supabase) return null;
+                
+                try {
+                    const { data, error } = await supabase
+                        .from('friends')
+                        .select('*')
+                        .eq('id', friendId)
+                        .single();
+                    
+                    if (error) {
+                        // 如果数据库查询失败，尝试从缓存获取
+                        const cachedFriend = friendsDataCache.find(f => f.id === friendId);
+                        if (cachedFriend) {
+                            console.log('从缓存获取好友数据');
+                            return cachedFriend;
+                        }
+                        throw error;
+                    }
+                    
+                    // 转换数据格式
+                    return {
+                        id: data.id,
+                        name: data.name,
+                        adminMessage: data.admin_message || '',
+                        avatarColor: data.avatar_color || getAvatarColor(data.name),
+                        messages: data.messages || [],
+                        timeline: data.timeline || [],
+                        created_at: data.created_at
+                    };
+                } catch (error) {
+                    console.error('获取好友失败:', error);
+                    // 尝试从缓存获取
+                    const cachedFriend = friendsDataCache.find(f => f.id === friendId);
+                    if (cachedFriend) {
+                        console.log('从缓存获取好友数据');
+                        return cachedFriend;
+                    }
+                    return null;
+                }
+            }
+            
+            // 通过名字搜索好友
+            async function searchFriendByName(name) {
+                if (!name || !name.trim()) return null;
+                
+                // 先尝试从缓存查找
+                const cachedFriend = friendsDataCache.find(f => 
+                    f.name.toLowerCase() === name.toLowerCase()
+                );
+                
+                if (cachedFriend) {
+                    console.log('从缓存找到好友:', cachedFriend.name);
+                    return cachedFriend;
+                }
+                
+                // 缓存中没有，尝试从数据库查找
+                if (!supabase) return null;
+                
+                try {
+                    const { data, error } = await supabase
+                        .from('friends')
+                        .select('*')
+                        .ilike('name', name)
+                        .limit(1);
+                    
+                    if (error || !data || data.length === 0) return null;
+                    
+                    const dbFriend = data[0];
+                    return {
+                        id: dbFriend.id,
+                        name: dbFriend.name,
+                        adminMessage: dbFriend.admin_message || '',
+                        avatarColor: dbFriend.avatar_color || getAvatarColor(dbFriend.name),
+                        messages: dbFriend.messages || [],
+                        timeline: dbFriend.timeline || [],
+                        created_at: dbFriend.created_at
+                    };
+                } catch (error) {
+                    console.error('搜索好友失败:', error);
+                    return null;
+                }
+            }
+            
+            // ========== 显示相关函数 ==========
+            
+            // 显示通知
+            function showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `<span>${message}</span>`;
+                
+                notificationContainer.appendChild(notification);
+                
+                // 3秒后自动移除
+                setTimeout(() => {
+                    notification.style.animation = 'slideIn 0.5s ease reverse';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 500);
+                }, 3000);
+            }
+            
+            // 加载好友列表
+            async function loadFriendsList() {
+                console.log("开始加载好友列表...");
+                
+                if (!supabase) {
+                    friendList.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>数据库连接失败，请检查配置</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                friendList.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>正在从云端加载好友档案...</p>
+                    </div>
+                `;
+                
+                const friendsData = await loadFriendsData();
+                
+                if (friendsData.length === 0) {
+                    friendList.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-users"></i>
+                            <p>还没有好友档案，快为你的朋友创建一个吧！</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 清空当前列表
+                friendList.innerHTML = '';
+                
+                friendsData.forEach(friend => {
+                    // 生成纯色头像HTML
+                    const avatarHtml = generateSolidAvatar(friend.name, 'small');
+                    
+                    const friendItem = document.createElement('div');
+                    friendItem.className = 'friend-item';
+                    friendItem.innerHTML = `
+                        ${avatarHtml}
+                        <div class="friend-info">
+                            <h4>${friend.name}</h4>
+                            <p>${friend.adminMessage.substring(0, 60)}${friend.adminMessage.length > 60 ? '...' : ''}</p>
+                            <p style="font-size: 0.9rem; color: var(--accent-color); margin-top: 5px;">
+                                <i class="fas fa-comments"></i> ${friend.messages ? friend.messages.length : 0} 条留言
+                                <i class="fas fa-cloud" style="margin-left: 10px;"></i>
+                            </p>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="action-btn view-friend-btn" data-id="${friend.id}">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                            <button class="action-btn manage-friend-btn" data-id="${friend.id}">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <button class="action-btn delete-friend-btn" data-id="${friend.id}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    friendList.appendChild(friendItem);
+                });
+                
+                // 添加事件监听
+                addFriendListEventListeners();
+            }
+            
+            // 添加好友列表事件监听器
+            function addFriendListEventListeners() {
+                document.querySelectorAll('.view-friend-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const friendId = parseInt(e.currentTarget.getAttribute('data-id'));
+                        viewFriend(friendId);
+                    });
+                });
+                
+                document.querySelectorAll('.manage-friend-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const friendId = parseInt(e.currentTarget.getAttribute('data-id'));
+                        openManageModal(friendId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-friend-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const friendId = parseInt(e.currentTarget.getAttribute('data-id'));
+                        deleteFriend(friendId);
+                    });
                 });
             }
             
-            // 初始化时间线
-            updateTimelineForAllFriends();
+            // 重置用户搜索界面
+            function resetUserSearch() {
+                userResult.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-heart"></i>
+                        <p>输入你的名字，看看🥬给你留了什么话</p>
+                    </div>
+                `;
+                timelineSection.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-clock"></i>
+                        <p>找到你的档案后，可以在这里查看🥬为你记录的时光</p>
+                    </div>
+                `;
+                newMessageSection.classList.add('hidden');
+                userNameInput.value = '';
+                userBackBtn.classList.add('hidden');
+            }
             
-            // 当前选中的好友（用户视角）
-            let currentFriend = null;
-            // 当前时间线过滤器
-            let currentFilter = "all";
-            // 当前正在管理的好友
-            let managingFriend = null;
+            // 显示好友档案
+            async function displayFriendProfile(friend) {
+                if (!friend) return;
+                
+                currentFriend = friend;
+                
+                // 生成纯色头像HTML（大尺寸）
+                const avatarHtml = generateSolidAvatar(friend.name, 'large');
+                
+                // 显示好友信息（使用纯色头像）
+                userResult.innerHTML = `
+                    <div class="friend-profile">
+                        <div class="friend-avatar-container">
+                            ${avatarHtml}
+                        </div>
+                        <h3>${friend.name}</h3>
+                        <p>欢迎来到你的专属档案！🥬为你记录了一些美好时刻～</p>
+                        <p style="font-size: 1rem; color: var(--dark-color);">
+                            <i class="fas fa-cloud"></i> 云端同步，多设备访问
+                        </p>
+                    </div>
+                `;
+                
+                // 显示时间线
+                displayTimeline(friend);
+                
+                // 显示留言输入框
+                newMessageSection.classList.remove('hidden');
+                userMessageInput.value = '';
+                userMessageInput.focus();
+                
+                // 显示返回按钮
+                userBackBtn.classList.remove('hidden');
+            }
             
-            // 管理员密码
-            const ADMIN_PASSWORD = "v05708";
+            // 显示时间线
+            function displayTimeline(friend) {
+                if (!friend || !friend.timeline) {
+                    timelineSection.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-clock"></i>
+                            <p>还没有时间线记录</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 过滤时间线项目
+                let filteredTimeline = friend.timeline;
+                if (currentFilter === 'message') {
+                    filteredTimeline = friend.timeline.filter(item => item.type === 'message');
+                }
+                
+                if (filteredTimeline.length === 0) {
+                    timelineSection.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-clock"></i>
+                            <p>还没有时间线记录</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                timelineSection.innerHTML = '<div class="timeline">';
+                
+                filteredTimeline.forEach(item => {
+                    const timelineItem = document.createElement('div');
+                    timelineItem.className = 'timeline-item';
+                    
+                    if (item.type === 'message') {
+                        timelineItem.innerHTML = `
+                            <div class="timeline-icon">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <span class="timeline-sender">${item.sender}</span>
+                                    <span class="timeline-time">${item.time}</span>
+                                </div>
+                                <div class="timeline-message">${item.content}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    timelineSection.querySelector('.timeline').appendChild(timelineItem);
+                });
+                
+                timelineSection.innerHTML += '</div>';
+            }
             
-            // DOM 元素
-            const adminBtn = document.getElementById('admin-btn');
-            const userBtn = document.getElementById('user-btn');
-            const adminView = document.getElementById('admin-view');
-            const userView = document.getElementById('user-view');
-            const passwordSection = document.getElementById('password-section');
-            const adminContent = document.getElementById('admin-content');
-            const loginBtn = document.getElementById('login-btn');
-            const adminPasswordInput = document.getElementById('admin-password');
-            const friendForm = document.getElementById('friend-form');
-            const friendNameInput = document.getElementById('friend-name');
-            const adminMessageInput = document.getElementById('admin-message');
-            const friendList = document.getElementById('friend-list');
-            const userNameInput = document.getElementById('user-name');
-            const searchBtn = document.getElementById('search-btn');
-            const userResult = document.getElementById('user-result');
-            const timelineSection = document.getElementById('timeline-section');
-            const newMessageSection = document.getElementById('new-message-section');
-            const userMessageInput = document.getElementById('user-message');
-            const sendMessageBtn = document.getElementById('send-message-btn');
-            const notificationContainer = document.getElementById('notification-container');
-            const timelineFilter = document.getElementById('timeline-filter');
-            const adminBackBtn = document.getElementById('admin-back-btn');
-            const userBackBtn = document.getElementById('user-back-btn');
-            
-            // 管理模态框元素
-            const manageFriendModal = document.getElementById('manage-friend-modal');
-            const closeManageModalBtn = document.getElementById('close-manage-modal');
-            const manageFriendNameInput = document.getElementById('manage-friend-name');
-            const manageAdminMessageInput = document.getElementById('manage-admin-message');
-            const manageNewMessageInput = document.getElementById('manage-new-message');
-            const saveManageBtn = document.getElementById('save-manage-btn');
-            const addMessageBtn = document.getElementById('add-message-btn');
+            // ========== 事件监听器 ==========
             
             // 视角切换
             adminBtn.addEventListener('click', () => {
@@ -1225,27 +1733,8 @@
                 currentFriend = null;
             });
             
-            // 重置用户搜索界面
-            function resetUserSearch() {
-                userResult.innerHTML = `
-                    <div class="no-data">
-                        <i class="fas fa-heart"></i>
-                        <p>输入你的名字，看看🥬给你留了什么话</p>
-                    </div>
-                `;
-                timelineSection.innerHTML = `
-                    <div class="no-data">
-                        <i class="fas fa-clock"></i>
-                        <p>找到你的档案后，可以在这里查看🥬为你记录的时光</p>
-                    </div>
-                `;
-                newMessageSection.classList.add('hidden');
-                userNameInput.value = '';
-                userBackBtn.classList.add('hidden');
-            }
-            
             // 创建好友档案
-            friendForm.addEventListener('submit', (e) => {
+            friendForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
                 const name = friendNameInput.value.trim();
@@ -1257,14 +1746,11 @@
                 }
                 
                 // 检查是否已存在同名好友
-                const existingFriend = friendsData.find(friend => friend.name === name);
+                const existingFriend = await searchFriendByName(name);
                 if (existingFriend) {
                     showNotification('已经有同名好友的档案啦！换个名字试试？', 'error');
                     return;
                 }
-                
-                // 生成新好友ID
-                const newId = friendsData.length > 0 ? Math.max(...friendsData.map(f => f.id)) + 1 : 1;
                 
                 // 获取当前时间
                 const now = new Date();
@@ -1281,7 +1767,6 @@
                 
                 // 创建新好友档案
                 const newFriend = {
-                    id: newId,
                     name: name,
                     adminMessage: adminMessage || "🥬想对你说：很高兴认识你！",
                     avatarColor: avatarColor,
@@ -1299,249 +1784,28 @@
                 newFriend.messages.push(initialMessage);
                 newFriend.timeline.push(initialMessage);
                 
-                // 添加到数据数组
-                friendsData.push(newFriend);
+                // 保存到 Supabase
+                const savedFriend = await saveFriendData(newFriend);
                 
-                // 保存到本地存储
-                localStorage.setItem('friendsData', JSON.stringify(friendsData));
-                
-                // 重置表单
-                friendForm.reset();
-                
-                // 立即重新加载好友列表（使用延时确保DOM更新）
-                setTimeout(() => {
-                    loadFriendsList();
-                    showNotification(`好友 "${name}" 的档案创建成功！🥬`, 'success');
-                }, 50);
-            });
-            
-            // 加载好友列表
-            function loadFriendsList() {
-                console.log("开始加载好友列表...");
-                
-                // 强制从localStorage重新读取数据（确保数据最新）
-                const freshData = localStorage.getItem('friendsData');
-                if (freshData) {
-                    try {
-                        friendsData = JSON.parse(freshData);
-                        console.log("重新加载的数据:", friendsData);
-                    } catch (e) {
-                        console.error("解析本地存储数据失败:", e);
-                    }
-                }
-                
-                if (friendsData.length === 0) {
-                    friendList.innerHTML = `
-                        <div class="no-data">
-                            <i class="fas fa-users"></i>
-                            <p>还没有好友档案，快为你的朋友创建一个吧！</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                // 清空当前列表
-                friendList.innerHTML = '';
-                
-                friendsData.forEach(friend => {
-                    // 生成纯色头像HTML
-                    const avatarHtml = generateSolidAvatar(friend.name, 'small');
+                if (savedFriend) {
+                    // 重置表单
+                    friendForm.reset();
                     
-                    const friendItem = document.createElement('div');
-                    friendItem.className = 'friend-item';
-                    friendItem.innerHTML = `
-                        ${avatarHtml}
-                        <div class="friend-info">
-                            <h4>${friend.name}</h4>
-                            <p>${friend.adminMessage.substring(0, 60)}${friend.adminMessage.length > 60 ? '...' : ''}</p>
-                            <p style="font-size: 0.9rem; color: var(--accent-color); margin-top: 5px;">
-                                <i class="fas fa-comments"></i> ${friend.messages ? friend.messages.length : 0} 条留言
-                            </p>
-                        </div>
-                        <div class="friend-actions">
-                            <button class="action-btn view-friend-btn" data-id="${friend.id}">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                            <button class="action-btn manage-friend-btn" data-id="${friend.id}">
-                                <i class="fas fa-cog"></i>
-                            </button>
-                            <button class="action-btn delete-friend-btn" data-id="${friend.id}">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
-                    `;
-                    
-                    friendList.appendChild(friendItem);
-                });
-                
-                // 添加查看和删除事件监听
-                document.querySelectorAll('.view-friend-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const friendId = parseInt(e.currentTarget.getAttribute('data-id'));
-                        viewFriend(friendId);
-                    });
-                });
-                
-                // 添加管理事件监听
-                document.querySelectorAll('.manage-friend-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const friendId = parseInt(e.currentTarget.getAttribute('data-id'));
-                        openManageModal(friendId);
-                    });
-                });
-                
-                document.querySelectorAll('.delete-friend-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const friendId = parseInt(e.currentTarget.getAttribute('data-id'));
-                        deleteFriend(friendId);
-                    });
-                });
-            }
-            
-            // 打开管理模态框
-            function openManageModal(friendId) {
-                const friend = friendsData.find(f => f.id === friendId);
-                if (!friend) return;
-                
-                managingFriend = friend;
-                
-                // 填充模态框内容
-                manageFriendNameInput.value = friend.name;
-                manageAdminMessageInput.value = friend.adminMessage;
-                manageNewMessageInput.value = '';
-                
-                // 显示模态框
-                manageFriendModal.classList.add('active');
-            }
-            
-            // 保存管理更改
-            saveManageBtn.addEventListener('click', () => {
-                if (!managingFriend) return;
-                
-                // 更新管理员留言
-                managingFriend.adminMessage = manageAdminMessageInput.value.trim() || managingFriend.adminMessage;
-                
-                // 添加新留言（如果有）
-                const newMessageContent = manageNewMessageInput.value.trim();
-                if (newMessageContent) {
-                    const now = new Date();
-                    const timeString = now.toLocaleString('zh-CN', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    }).replace(/\//g, '-');
-                    
-                    const newMessage = {
-                        sender: "🥬",
-                        content: newMessageContent,
-                        time: timeString,
-                        type: 'message'
-                    };
-                    
-                    managingFriend.messages.push(newMessage);
-                }
-                
-                // 更新好友的时间线
-                updateFriendTimeline(managingFriend);
-                
-                // 保存到本地存储
-                localStorage.setItem('friendsData', JSON.stringify(friendsData));
-                
-                // 重置留言输入框
-                manageNewMessageInput.value = '';
-                
-                // 重新加载好友列表
-                setTimeout(() => {
-                    loadFriendsList();
-                }, 50);
-                
-                // 关闭模态框
-                manageFriendModal.classList.remove('active');
-                
-                showNotification(`好友 "${managingFriend.name}" 的档案已更新成功！🥬`, 'success');
-            });
-            
-            // 仅添加留言按钮
-            addMessageBtn.addEventListener('click', () => {
-                if (!managingFriend) return;
-                
-                const newMessageContent = manageNewMessageInput.value.trim();
-                if (!newMessageContent) {
-                    showNotification('请输入留言内容！', 'error');
-                    return;
-                }
-                
-                const now = new Date();
-                const timeString = now.toLocaleString('zh-CN', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }).replace(/\//g, '-');
-                
-                const newMessage = {
-                    sender: "🥬",
-                    content: newMessageContent,
-                    time: timeString,
-                    type: 'message'
-                };
-                
-                managingFriend.messages.push(newMessage);
-                
-                // 更新好友的时间线
-                updateFriendTimeline(managingFriend);
-                
-                // 保存到本地存储
-                localStorage.setItem('friendsData', JSON.stringify(friendsData));
-                
-                // 重置留言输入框
-                manageNewMessageInput.value = '';
-                
-                // 重新加载好友列表
-                setTimeout(() => {
-                    loadFriendsList();
-                }, 50);
-                
-                showNotification(`已为 "${managingFriend.name}" 添加新留言成功！🥬`, 'success');
-            });
-            
-            // 更新好友时间线
-            function updateFriendTimeline(friend) {
-                friend.timeline = [];
-                
-                // 添加所有留言
-                if (friend.messages && friend.messages.length > 0) {
-                    friend.messages.forEach(message => {
-                        friend.timeline.push({
-                            ...message,
-                            type: "message"
-                        });
-                    });
-                }
-                
-                // 按时间排序（最新的在前面）
-                friend.timeline.sort((a, b) => new Date(b.time) - new Date(a.time));
-            }
-            
-            // 关闭管理模态框
-            closeManageModalBtn.addEventListener('click', () => {
-                manageFriendModal.classList.remove('active');
-            });
-            
-            // 点击模态框外部关闭
-            manageFriendModal.addEventListener('click', (e) => {
-                if (e.target === manageFriendModal) {
-                    manageFriendModal.classList.remove('active');
+                    // 重新加载好友列表
+                    setTimeout(() => {
+                        loadFriendsList();
+                        showNotification(`好友 "${name}" 的档案创建成功！🥬`, 'success');
+                    }, 50);
                 }
             });
             
             // 查看好友档案
-            function viewFriend(friendId) {
-                const friend = friendsData.find(f => f.id === friendId);
-                if (!friend) return;
+            async function viewFriend(friendId) {
+                const friend = await getFriendById(friendId);
+                if (!friend) {
+                    showNotification('找不到好友档案', 'error');
+                    return;
+                }
                 
                 // 切换到用户视角
                 userBtn.click();
@@ -1554,19 +1818,19 @@
             }
             
             // 删除好友档案
-            function deleteFriend(friendId) {
-                const friend = friendsData.find(f => f.id === friendId);
+            async function deleteFriend(friendId) {
+                const friend = await getFriendById(friendId);
                 if (!friend) return;
                 
                 if (confirm(`确定要删除好友 "${friend.name}" 的档案吗？这将会删除所有留言记录。`)) {
-                    friendsData = friendsData.filter(f => f.id !== friendId);
-                    localStorage.setItem('friendsData', JSON.stringify(friendsData));
+                    const success = await deleteFriendData(friendId);
                     
-                    // 立即重新加载好友列表
-                    setTimeout(() => {
-                        loadFriendsList();
-                        showNotification(`好友 "${friend.name}" 的档案已删除成功！`, 'info');
-                    }, 50);
+                    if (success) {
+                        setTimeout(() => {
+                            loadFriendsList();
+                            showNotification(`好友 "${friend.name}" 的档案已删除成功！`, 'info');
+                        }, 50);
+                    }
                 }
             }
             
@@ -1598,7 +1862,7 @@
                 }
             });
             
-            function searchFriend() {
+            async function searchFriend() {
                 const name = userNameInput.value.trim();
                 
                 if (!name) {
@@ -1606,7 +1870,7 @@
                     return;
                 }
                 
-                const friend = friendsData.find(f => f.name.toLowerCase() === name.toLowerCase());
+                const friend = await searchFriendByName(name);
                 
                 if (friend) {
                     displayFriendProfile(friend);
@@ -1632,86 +1896,8 @@
                 }
             }
             
-            // 显示好友档案
-            function displayFriendProfile(friend) {
-                currentFriend = friend;
-                
-                // 生成纯色头像HTML（大尺寸）
-                const avatarHtml = generateSolidAvatar(friend.name, 'large');
-                
-                // 显示好友信息（使用纯色头像）
-                userResult.innerHTML = `
-                    <div class="friend-profile">
-                        <div class="friend-avatar-container">
-                            ${avatarHtml}
-                        </div>
-                        <h3>${friend.name}</h3>
-                        <p>欢迎来到你的专属档案！🥬为你记录了一些美好时刻～</p>
-                    </div>
-                `;
-                
-                // 显示时间线
-                displayTimeline(friend);
-                
-                // 显示留言输入框
-                newMessageSection.classList.remove('hidden');
-                userMessageInput.value = '';
-                userMessageInput.focus();
-                
-                // 显示返回按钮
-                userBackBtn.classList.remove('hidden');
-            }
-            
-            // 显示时间线
-            function displayTimeline(friend) {
-                // 确保时间线是最新的
-                updateFriendTimeline(friend);
-                
-                // 过滤时间线项目
-                let filteredTimeline = friend.timeline;
-                if (currentFilter === 'message') {
-                    filteredTimeline = friend.timeline.filter(item => item.type === 'message');
-                }
-                
-                if (filteredTimeline.length === 0) {
-                    timelineSection.innerHTML = `
-                        <div class="no-data">
-                            <i class="fas fa-clock"></i>
-                            <p>还没有时间线记录</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                timelineSection.innerHTML = '<div class="timeline">';
-                
-                filteredTimeline.forEach(item => {
-                    const timelineItem = document.createElement('div');
-                    timelineItem.className = 'timeline-item';
-                    
-                    if (item.type === 'message') {
-                        timelineItem.innerHTML = `
-                            <div class="timeline-icon">
-                                <i class="fas fa-comment"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <div class="timeline-header">
-                                    <span class="timeline-sender">${item.sender}</span>
-                                    <span class="timeline-time">${item.time}</span>
-                                </div>
-                                <div class="timeline-message">${item.content}</div>
-                            </div>
-                        `;
-                    }
-                    
-                    timelineSection.querySelector('.timeline').appendChild(timelineItem);
-                });
-                
-                timelineSection.innerHTML += '</div>';
-            }
-            
             // 发送留言（用户）
-            sendMessageBtn.addEventListener('click', () => {
+            sendMessageBtn.addEventListener('click', async () => {
                 if (!currentFriend) {
                     showNotification('请先查找你的档案！', 'error');
                     return;
@@ -1742,93 +1928,237 @@
                     type: 'message'
                 };
                 
+                // 获取最新数据
+                const friend = await getFriendById(currentFriend.id);
+                if (!friend) {
+                    showNotification('好友档案加载失败', 'error');
+                    return;
+                }
+                
                 // 添加到消息数组
-                if (!currentFriend.messages) currentFriend.messages = [];
-                currentFriend.messages.push(newMessage);
+                if (!friend.messages) friend.messages = [];
+                friend.messages.push(newMessage);
                 
                 // 更新时间线
-                updateFriendTimeline(currentFriend);
+                updateFriendTimeline(friend);
                 
-                // 保存到本地存储
-                localStorage.setItem('friendsData', JSON.stringify(friendsData));
+                // 保存到 Supabase
+                const saved = await saveFriendData(friend);
                 
-                // 重新显示时间线
-                displayTimeline(currentFriend);
-                
-                // 清空输入框
-                userMessageInput.value = '';
-                
-                showNotification('留言发送成功！🥬会很快回复你的！', 'success');
-                
-                // 自动添加一条🥬回复（模拟）
-                setTimeout(() => {
-                    // 随机选择一条回复
-                    const replies = [
-                        "收到你的留言啦，好开心！",
-                        "谢谢你的留言，我会一直珍惜我们的友谊！",
-                        "看到你的留言心里暖暖的！",
-                        "谢谢关心，你也要照顾好自己哦！",
-                        "已收到，期待下次见面！",
-                        "你的留言让我今天的心情都变好了！",
-                        "友谊万岁！🥬永远是你的朋友！"
-                    ];
+                if (saved) {
+                    // 更新当前好友对象
+                    currentFriend = friend;
                     
-                    const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                    // 重新显示时间线
+                    displayTimeline(friend);
                     
-                    // 创建回复对象
-                    const replyMessage = {
+                    // 清空输入框
+                    userMessageInput.value = '';
+                    
+                    showNotification('留言发送成功！🥬会很快回复你的！', 'success');
+                    
+                    // 模拟🥬回复
+                    setTimeout(async () => {
+                        const replies = [
+                            "收到你的留言啦，好开心！",
+                            "谢谢你的留言，我会一直珍惜我们的友谊！",
+                            "看到你的留言心里暖暖的！",
+                            "谢谢关心，你也要照顾好自己哦！",
+                            "已收到，期待下次见面！",
+                            "你的留言让我今天的心情都变好了！",
+                            "友谊万岁！🥬永远是你的朋友！"
+                        ];
+                        
+                        const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                        
+                        // 创建回复对象
+                        const replyMessage = {
+                            sender: "🥬",
+                            content: randomReply,
+                            time: new Date(now.getTime() + 60000).toLocaleString('zh-CN', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            }).replace(/\//g, '-'),
+                            type: 'message'
+                        };
+                        
+                        // 获取最新数据
+                        const updatedFriend = await getFriendById(currentFriend.id);
+                        if (!updatedFriend) return;
+                        
+                        // 添加🥬回复
+                        updatedFriend.messages.push(replyMessage);
+                        
+                        // 更新时间线
+                        updateFriendTimeline(updatedFriend);
+                        
+                        // 保存到 Supabase
+                        await saveFriendData(updatedFriend);
+                        
+                        // 重新显示时间线
+                        displayTimeline(updatedFriend);
+                        
+                        showNotification('🥬回复了你的留言！', 'info');
+                    }, 2000);
+                }
+            });
+            
+            // 打开管理模态框
+            async function openManageModal(friendId) {
+                const friend = await getFriendById(friendId);
+                if (!friend) {
+                    showNotification('加载好友档案失败', 'error');
+                    return;
+                }
+                
+                managingFriend = friend;
+                
+                // 填充模态框内容
+                manageFriendNameInput.value = friend.name;
+                manageAdminMessageInput.value = friend.adminMessage;
+                manageNewMessageInput.value = '';
+                
+                // 显示模态框
+                manageFriendModal.classList.add('active');
+            }
+            
+            // 保存管理更改
+            saveManageBtn.addEventListener('click', async () => {
+                if (!managingFriend) return;
+                
+                // 更新管理员留言
+                managingFriend.adminMessage = manageAdminMessageInput.value.trim() || managingFriend.adminMessage;
+                
+                // 添加新留言（如果有）
+                const newMessageContent = manageNewMessageInput.value.trim();
+                if (newMessageContent) {
+                    const now = new Date();
+                    const timeString = now.toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }).replace(/\//g, '-');
+                    
+                    const newMessage = {
                         sender: "🥬",
-                        content: randomReply,
-                        time: new Date(now.getTime() + 60000).toLocaleString('zh-CN', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        }).replace(/\//g, '-'),
+                        content: newMessageContent,
+                        time: timeString,
                         type: 'message'
                     };
                     
-                    // 添加🥬回复
-                    currentFriend.messages.push(replyMessage);
+                    managingFriend.messages.push(newMessage);
+                }
+                
+                // 更新好友的时间线
+                updateFriendTimeline(managingFriend);
+                
+                // 保存到 Supabase
+                const saved = await saveFriendData(managingFriend);
+                
+                if (saved) {
+                    // 重置留言输入框
+                    manageNewMessageInput.value = '';
                     
-                    // 更新时间线
-                    updateFriendTimeline(currentFriend);
+                    // 重新加载好友列表
+                    setTimeout(() => {
+                        loadFriendsList();
+                    }, 50);
                     
-                    // 保存到本地存储
-                    localStorage.setItem('friendsData', JSON.stringify(friendsData));
+                    // 关闭模态框
+                    manageFriendModal.classList.remove('active');
                     
-                    // 重新显示时间线
-                    displayTimeline(currentFriend);
-                    
-                    showNotification('🥬回复了你的留言！', 'info');
-                }, 2000);
+                    showNotification(`好友 "${managingFriend.name}" 的档案已更新成功！🥬`, 'success');
+                }
             });
             
-            // 显示通知
-            function showNotification(message, type = 'info') {
-                const notification = document.createElement('div');
-                notification.className = `notification ${type}`;
-                notification.innerHTML = `<span>${message}</span>`;
+            // 仅添加留言按钮
+            addMessageBtn.addEventListener('click', async () => {
+                if (!managingFriend) return;
                 
-                notificationContainer.appendChild(notification);
+                const newMessageContent = manageNewMessageInput.value.trim();
+                if (!newMessageContent) {
+                    showNotification('请输入留言内容！', 'error');
+                    return;
+                }
                 
-                // 3秒后自动移除
-                setTimeout(() => {
-                    notification.style.animation = 'slideIn 0.5s ease reverse';
+                const now = new Date();
+                const timeString = now.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).replace(/\//g, '-');
+                
+                const newMessage = {
+                    sender: "🥬",
+                    content: newMessageContent,
+                    time: timeString,
+                    type: 'message'
+                };
+                
+                managingFriend.messages.push(newMessage);
+                
+                // 更新好友的时间线
+                updateFriendTimeline(managingFriend);
+                
+                // 保存到 Supabase
+                const saved = await saveFriendData(managingFriend);
+                
+                if (saved) {
+                    // 重置留言输入框
+                    manageNewMessageInput.value = '';
+                    
+                    // 重新加载好友列表
                     setTimeout(() => {
-                        notification.remove();
-                    }, 500);
-                }, 3000);
-            }
+                        loadFriendsList();
+                    }, 50);
+                    
+                    showNotification(`已为 "${managingFriend.name}" 添加新留言成功！🥬`, 'success');
+                }
+            });
             
-            // 初始化页面
-            function init() {
-                // 初始化时间线
-                updateTimelineForAllFriends();
+            // 关闭管理模态框
+            closeManageModalBtn.addEventListener('click', () => {
+                manageFriendModal.classList.remove('active');
+            });
+            
+            // 点击模态框外部关闭
+            manageFriendModal.addEventListener('click', (e) => {
+                if (e.target === manageFriendModal) {
+                    manageFriendModal.classList.remove('active');
+                }
+            });
+            
+            // ========== 初始化页面 ==========
+            async function init() {
+                console.log("🥬 正在初始化页面...");
                 
-                // 加载好友列表
-                loadFriendsList();
+                // 检查 Supabase 配置
+                if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.key || 
+                    SUPABASE_CONFIG.url.includes('你的项目id') || 
+                    SUPABASE_CONFIG.key.includes('你的匿名公钥')) {
+                    
+                    updateConnectionStatus('offline', '请先配置 Supabase 数据库');
+                    greeting.textContent = '请先配置数据库连接';
+                    
+                    showNotification('请先配置 Supabase 数据库连接', 'error');
+                    console.error('❌ 请先配置 Supabase 数据库连接');
+                    console.log('配置说明：');
+                    console.log('1. 访问 https://supabase.com 注册账号');
+                    console.log('2. 创建新项目，获取 URL 和 anon key');
+                    console.log('3. 修改代码中的 SUPABASE_CONFIG');
+                    
+                    return;
+                }
+                
+                // 初始化加载数据
+                await loadFriendsData();
                 
                 // 添加一些交互效果
                 document.querySelectorAll('.btn').forEach(btn => {
@@ -1844,6 +2174,8 @@
                         btn.style.transform = 'translateY(0)';
                     });
                 });
+                
+                console.log("🥬 页面初始化完成");
             }
             
             // 页面加载完成后初始化
@@ -1853,4 +2185,3 @@
     </script>
 </body>
 </html>
-
