@@ -1,151 +1,1855 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<title>好友档案 · 云端版</title>
-<style>
-body { font-family: Arial; background:#f5f5f5; padding:20px; }
-.card { background:#fff; padding:15px; margin-bottom:15px; border-radius:8px; }
-img { width:90px; margin:5px; border-radius:6px; }
-button { padding:6px 12px; cursor:pointer; }
-input, textarea { width:100%; margin:6px 0; }
-.admin { background:#ffe; padding:10px; border-radius:8px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥬的温馨时光相册 - 好友档案管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #A8E6CF;
+            --secondary-color: #FFD3B6;
+            --accent-color: #FFAAA5;
+            --light-color: #FFE8E8;
+            --dark-color: #7C9EB2;
+            --text-color: #5A5A5A;
+            --shadow: 0 8px 20px rgba(168, 230, 207, 0.3);
+            --round: 25px;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-color);
+            font-family: 'ZCOOL XiaoWei', serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 背景装饰元素 */
+        .decoration {
+            position: fixed;
+            z-index: -1;
+            font-size: 3rem;
+            opacity: 0.1;
+            animation: float 8s infinite ease-in-out;
+        }
+        
+        .dec-1 { top: 10%; left: 5%; animation-delay: 0s; }
+        .dec-2 { top: 20%; right: 8%; animation-delay: 1s; }
+        .dec-3 { bottom: 15%; left: 7%; animation-delay: 2s; }
+        .dec-4 { bottom: 25%; right: 12%; animation-delay: 3s; }
+        .dec-5 { top: 40%; left: 15%; animation-delay: 4s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: var(--round);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            border: 8px solid var(--light-color);
+        }
+        
+        header {
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "🥬🥬🥬🥬🥬🥬🥬🥬🥬🥬🥬🥬🥬🥬";
+            position: absolute;
+            top: 10px;
+            left: 0;
+            font-size: 1.5rem;
+            opacity: 0.2;
+            white-space: nowrap;
+        }
+        
+        .title-container {
+            position: relative;
+            z-index: 2;
+        }
+        
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-family: 'Ma Shan Zheng', cursive;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            color: #5A5A5A;
+        }
+        
+        header h1 span {
+            color: #FF7A7A;
+        }
+        
+        header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .view-switcher {
+            display: flex;
+            justify-content: center;
+            background-color: var(--light-color);
+            padding: 15px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        
+        .view-btn {
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 50px;
+            margin: 0 15px;
+            transition: all 0.4s ease;
+            color: var(--text-color);
+            position: relative;
+            overflow: hidden;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        .view-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            z-index: -1;
+            border-radius: 50px;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+        }
+        
+        .view-btn.active::before {
+            transform: translateY(0);
+        }
+        
+        .view-btn.active {
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 170, 165, 0.4);
+        }
+        
+        .view-btn:hover:not(.active) {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(168, 230, 207, 0.4);
+        }
+        
+        .view-btn i {
+            margin-right: 10px;
+        }
+        
+        .view-container {
+            display: none;
+            padding: 30px;
+            min-height: 600px;
+        }
+        
+        .view-container.active {
+            display: block;
+        }
+        
+        .admin-view, .user-view {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 1200px) {
+            .admin-view, .user-view {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: var(--round);
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(168, 230, 207, 0.2);
+            border: 3px solid var(--light-color);
+            transition: transform 0.3s ease;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+        }
+        
+        .section-title {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px dotted var(--primary-color);
+            display: flex;
+            align-items: center;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        .section-title i {
+            margin-right: 15px;
+            background-color: var(--light-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: 'ZCOOL XiaoWei', serif;
+            background-color: rgba(168, 230, 207, 0.1);
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(255, 170, 165, 0.2);
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            color: white;
+            border: none;
+            padding: 18px 30px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Ma Shan Zheng', cursive;
+            box-shadow: 0 5px 15px rgba(168, 230, 207, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 170, 165, 0.4);
+        }
+        
+        .btn i {
+            margin-right: 10px;
+        }
+        
+        /* 返回按钮样式 */
+        .back-btn {
+            background: linear-gradient(90deg, var(--dark-color) 0%, #7C9EB2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Ma Shan Zheng', cursive;
+            box-shadow: 0 5px 15px rgba(124, 158, 178, 0.4);
+            margin-bottom: 20px;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(124, 158, 178, 0.4);
+        }
+        
+        .back-btn i {
+            margin-right: 8px;
+        }
+        
+        .friend-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .friend-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, rgba(168, 230, 207, 0.1) 0%, rgba(255, 211, 182, 0.1) 100%);
+            border-left: 6px solid var(--accent-color);
+            transition: all 0.3s;
+        }
+        
+        .friend-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(255, 170, 165, 0.2);
+        }
+        
+        /* 纯色头像样式 */
+        .friend-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+            border: 4px solid var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        /* 纯色头像颜色配置 */
+        .avatar-color-1 { background: linear-gradient(135deg, #FFAAA5 0%, #FF7A7A 100%); }
+        .avatar-color-2 { background: linear-gradient(135deg, #A8E6CF 0%, #7C9EB2 100%); }
+        .avatar-color-3 { background: linear-gradient(135deg, #FFD3B6 0%, #FFAAA5 100%); }
+        .avatar-color-4 { background: linear-gradient(135deg, #7C9EB2 0%, #A8E6CF 100%); }
+        .avatar-color-5 { background: linear-gradient(135deg, #FFE8E8 0%, #FFD3B6 100%); color: var(--text-color); }
+        .avatar-color-6 { background: linear-gradient(135deg, #A8E6CF 0%, #FFAAA5 100%); }
+        
+        .friend-info h4 {
+            margin-bottom: 8px;
+            color: var(--dark-color);
+            font-size: 1.3rem;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        .friend-info p {
+            color: var(--text-color);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .friend-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-color);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+        
+        .action-btn:hover {
+            background-color: var(--accent-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        /* 时光线样式 */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .timeline-item {
+            display: flex;
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: -25px;
+            width: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        .timeline-item:last-child::before {
+            display: none;
+        }
+        
+        .timeline-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            position: relative;
+            z-index: 2;
+            border: 3px solid var(--primary-color);
+            color: var(--accent-color);
+            font-size: 1.5rem;
+        }
+        
+        .timeline-content {
+            flex: 1;
+            background-color: rgba(168, 230, 207, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid var(--accent-color);
+        }
+        
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .timeline-sender {
+            font-weight: 600;
+            color: var(--accent-color);
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.2rem;
+        }
+        
+        .timeline-time {
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+        
+        .timeline-message {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--dark-color);
+        }
+        
+        .no-data i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            opacity: 0.7;
+        }
+        
+        .no-data p {
+            font-size: 1.2rem;
+            margin-top: 15px;
+        }
+        
+        .user-search {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .user-search input {
+            flex: 1;
+        }
+        
+        /* 优化好友头像显示 */
+        .friend-profile {
+            padding: 20px 0;
+            text-align: center;
+        }
+        
+        .friend-avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 25px;
+        }
+        
+        .friend-avatar-container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color), var(--secondary-color));
+            border-radius: 50%;
+            z-index: -1;
+            animation: rotate 10s linear infinite;
+        }
+        
+        .friend-avatar-container::after {
+            content: '🥬';
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background-color: var(--accent-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px rgba(255, 170, 165, 0.4);
+            z-index: 2;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .friend-profile-img {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 12px solid white;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 72px;
+            font-weight: bold;
+            color: white;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        .friend-profile-img:hover {
+            transform: scale(1.05);
+        }
+        
+        .friend-profile h3 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+            font-family: 'Ma Shan Zheng', cursive;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+            padding: 0 20px;
+        }
+        
+        .friend-profile h3::before,
+        .friend-profile h3::after {
+            content: '🥬';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            opacity: 0.7;
+        }
+        
+        .friend-profile h3::before {
+            left: -10px;
+        }
+        
+        .friend-profile h3::after {
+            right: -10px;
+        }
+        
+        .friend-profile p {
+            color: var(--text-color);
+            line-height: 1.8;
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 20px 30px;
+            border-radius: 15px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideIn 0.5s ease;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            max-width: 400px;
+        }
+        
+        .notification::before {
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .notification.success {
+            background: linear-gradient(90deg, var(--primary-color) 0%, #7C9EB2 100%);
+        }
+        
+        .notification.success::before {
+            content: '🥬';
+        }
+        
+        .notification.error {
+            background: linear-gradient(90deg, #FFAAA5 0%, #FF7A7A 100%);
+        }
+        
+        .notification.error::before {
+            content: '⚠️';
+        }
+        
+        .notification.info {
+            background: linear-gradient(90deg, #7C9EB2 0%, #A8E6CF 100%);
+        }
+        
+        .notification.info::before {
+            content: '💬';
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--dark-color);
+            font-size: 1rem;
+            border-top: 3px dotted var(--primary-color);
+            background-color: rgba(255, 232, 232, 0.5);
+        }
+        
+        .password-section {
+            margin-bottom: 30px;
+            padding: 30px;
+            background: linear-gradient(90deg, rgba(168, 230, 207, 0.1) 0%, rgba(255, 211, 182, 0.1) 100%);
+            border-radius: 15px;
+            border: 3px solid var(--light-color);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .greeting {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--accent-color);
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(168, 230, 207, 0.1);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--accent-color) 0%, #FF7A7A 100%);
+        }
+        
+        /* 时间线过滤器 */
+        .timeline-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: var(--light-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Ma Shan Zheng', cursive;
+            color: var(--dark-color);
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .filter-btn:hover:not(.active) {
+            background-color: rgba(168, 230, 207, 0.3);
+        }
+        
+        /* 模态框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background-color: white;
+            border-radius: var(--round);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 8px solid var(--light-color);
+            transform: translateY(-50px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px dotted var(--primary-color);
+        }
+        
+        .modal-title {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            font-family: 'Ma Shan Zheng', cursive;
+            display: flex;
+            align-items: center;
+        }
+        
+        .modal-title i {
+            margin-right: 15px;
+            background-color: var(--light-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-modal:hover {
+            background-color: var(--light-color);
+            transform: rotate(90deg);
+        }
+        
+        /* 顶部返回按钮 */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .top-header h2 {
+            margin: 0;
+            color: var(--accent-color);
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+    </style>
 </head>
-
 <body>
-
-<h1>📘 好友档案（Firebase 云端版）</h1>
-
-<div class="card admin">
-<h3>🔐 管理员操作</h3>
-<input id="adminPass" type="password" placeholder="输入管理员密码">
-<button onclick="login()">进入管理模式</button>
-</div>
-
-<div class="card" id="editor" style="display:none">
-<h3>➕ 添加好友</h3>
-<input id="name" placeholder="好友名字">
-<textarea id="msg" placeholder="你想说的话"></textarea>
-<input type="file" id="photos" multiple>
-<button onclick="createFriend()">保存</button>
-</div>
-
-<h2>📚 好友列表</h2>
-<div id="list"></div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } 
-from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } 
-from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
-
-/* 🔥 你的 Firebase 配置 */
-const firebaseConfig = {
-  apiKey: "AIzaSyDrhnxOtyUgVl2ct3B9WEqeE0ZIOSJUKvM",
-  authDomain: "vespace-90d84.firebaseapp.com",
-  projectId: "vespace-90d84",
-  storageBucket: "vespace-90d84.firebasestorage.app",
-  messagingSenderId: "1068019656250",
-  appId: "1:1068019656250:web:0015fefa2e5e1b2296b703"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
-
-let isAdmin = false;
-const ADMIN_PASSWORD = "123456"; // ←你可以改
-
-// 登录
-window.login = () => {
-  if (document.getElementById("adminPass").value === ADMIN_PASSWORD) {
-    isAdmin = true;
-    document.getElementById("editor").style.display = "block";
-    alert("管理员模式开启");
-  } else {
-    alert("密码错误");
-  }
-};
-
-// 上传图片
-async function uploadImage(file) {
-  if (!file.type.startsWith("image/")) return null;
-  if (file.size > 2 * 1024 * 1024) {
-    alert("图片不能超过2MB");
-    return null;
-  }
-
-  const name = crypto.randomUUID();
-  const refImg = ref(storage, `photos/${name}`);
-  await uploadBytes(refImg, file);
-
-  return {
-    url: await getDownloadURL(refImg),
-    path: `photos/${name}`
-  };
-}
-
-// 创建好友
-window.createFriend = async () => {
-  const name = document.getElementById("name").value;
-  const msg = document.getElementById("msg").value;
-  const files = document.getElementById("photos").files;
-
-  const photos = [];
-  for (const f of files) {
-    const p = await uploadImage(f);
-    if (p) photos.push(p);
-  }
-
-  await addDoc(collection(db, "friends"), {
-    name,
-    msg,
-    photos,
-    time: new Date().toLocaleString()
-  });
-
-  alert("保存成功");
-  load();
-};
-
-// 读取
-async function load() {
-  const list = document.getElementById("list");
-  list.innerHTML = "";
-
-  const snap = await getDocs(collection(db, "friends"));
-  snap.forEach(d => {
-    const f = d.data();
-    const div = document.createElement("div");
-    div.className = "card";
-
-    div.innerHTML = `
-      <h3>${f.name}</h3>
-      <p>${f.msg}</p>
-      ${f.photos.map(p => `<img src="${p.url}">`).join("")}
-      ${isAdmin ? `<br><button onclick="del('${d.id}', ${JSON.stringify(f.photos).replace(/"/g,'&quot;')})">删除</button>` : ""}
-    `;
-
-    list.appendChild(div);
-  });
-}
-
-// 删除
-window.del = async (id, photos) => {
-  if (!confirm("确定删除？")) return;
-
-  for (const p of photos) {
-    await deleteObject(ref(storage, p.path));
-  }
-
-  await deleteDoc(doc(db, "friends", id));
-  load();
-};
-
-load();
-</script>
-
+    <!-- 背景装饰元素 -->
+    <div class="decoration dec-1">🥬</div>
+    <div class="decoration dec-2">🥬</div>
+    <div class="decoration dec-3">🥬</div>
+    <div class="decoration dec-4">🥬</div>
+    <div class="decoration dec-5">🥬</div>
+    
+    <div class="container">
+        <header>
+            <div class="title-container">
+                <h1><span>🥬</span> 的小宇宙 <span>🥬</span></h1>
+                <p>记录🥬和朋友们的美好时光，留下温暖回忆！</p>
+                <div class="greeting">欢迎来到🥬的温馨时光小屋！</div>
+            </div>
+        </header>
+        
+        <div class="view-switcher">
+            <button class="view-btn active" id="admin-btn">
+                <i class="fas fa-heart"></i> 🥬的管理空间
+            </button>
+            <button class="view-btn" id="user-btn">
+                <i class="fas fa-user-friends"></i> 朋友来访入口
+            </button>
+        </div>
+        
+        <!-- 管理员视角 -->
+        <div class="view-container active" id="admin-view">
+            <div class="password-section" id="password-section">
+                <h3 class="section-title"><i class="fas fa-lock"></i> 🥬的身份验证</h3>
+                <div class="input-group">
+                    <label for="admin-password">请输入🥬的专属密码</label>
+                    <input type="password" id="admin-password" placeholder="只有🥬知道的神秘密码...">
+                </div>
+                <button class="btn" id="login-btn">
+                    <i class="fas fa-door-open"></i> 进入🥬的时光小屋
+                </button>
+            </div>
+            
+            <div class="admin-view hidden" id="admin-content">
+                <div class="top-header">
+                    <h2><i class="fas fa-heart"></i> 🥬的管理空间</h2>
+                    <button class="back-btn" id="admin-back-btn">
+                        <i class="fas fa-arrow-left"></i> 返回登录
+                    </button>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title"><i class="fas fa-book-medical"></i> 创建好友档案</h2>
+                    <form id="friend-form">
+                        <div class="input-group">
+                            <label for="friend-name">好友姓名</label>
+                            <input type="text" id="friend-name" placeholder="请输入好友的可爱名字" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="admin-message">🥬想对你说</label>
+                            <textarea id="admin-message" placeholder="输入🥬想对好友说的悄悄话..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn">
+                            <i class="fas fa-heart"></i> 保存好友档案
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title"><i class="fas fa-book-open"></i> 已创建的好友档案</h2>
+                    <div class="friend-list" id="friend-list">
+                        <!-- 好友列表将通过JS动态生成 -->
+                        <div class="no-data">
+                            <i class="fas fa-users"></i>
+                            <p>还没有好友档案，快为你的朋友创建一个吧！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 用户视角 -->
+        <div class="view-container" id="user-view">
+            <div class="user-view">
+                <div class="section">
+                    <div class="top-header">
+                        <h2><i class="fas fa-search-heart"></i> 查找你的档案</h2>
+                        <button class="back-btn hidden" id="user-back-btn">
+                            <i class="fas fa-arrow-left"></i> 返回搜索
+                        </button>
+                    </div>
+                    
+                    <div class="user-search">
+                        <input type="text" id="user-name" placeholder="请输入你的名字">
+                        <button class="btn" id="search-btn">
+                            <i class="fas fa-search"></i> 寻找🥬的留言
+                        </button>
+                    </div>
+                    
+                    <div id="user-result">
+                        <div class="no-data">
+                            <i class="fas fa-heart"></i>
+                            <p>输入你的名字，看看🥬给你留了什么话</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title"><i class="fas fa-history"></i> 🥬的温馨时光线</h2>
+                    <div class="timeline-filter" id="timeline-filter">
+                        <button class="filter-btn active" data-filter="all">全部</button>
+                        <button class="filter-btn" data-filter="message">留言</button>
+                    </div>
+                    <div id="timeline-section">
+                        <div class="no-data">
+                            <i class="fas fa-clock"></i>
+                            <p>找到你的档案后，可以在这里查看🥬为你记录的时光</p>
+                        </div>
+                    </div>
+                    
+                    <div class="hidden" id="new-message-section">
+                        <div class="input-group">
+                            <label for="user-message">给🥬的留言</label>
+                            <textarea id="user-message" placeholder="想对🥬说些什么呢？"></textarea>
+                        </div>
+                        <button class="btn" id="send-message-btn">
+                            <i class="fas fa-paper-plane"></i> 发送给🥬
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 🥬的温馨时光相册 | 所有数据都会保存在你的浏览器中，请放心使用</p>
+            <p style="margin-top: 10px;">🥬 会一直记录与每位朋友的美好时光 🥬</p>
+        </footer>
+    </div>
+    
+    <!-- 好友管理模态框 -->
+    <div class="modal-overlay" id="manage-friend-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-user-edit"></i> 管理好友档案</h3>
+                <button class="close-modal" id="close-manage-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-content">
+                <div class="input-group">
+                    <label>好友姓名</label>
+                    <input type="text" id="manage-friend-name" readonly>
+                </div>
+                
+                <div class="input-group">
+                    <label>🥬的留言（可编辑）</label>
+                    <textarea id="manage-admin-message" placeholder="编辑🥬想对好友说的话..."></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label>🥬的新留言</label>
+                    <textarea id="manage-new-message" placeholder="添加一条新的留言..."></textarea>
+                </div>
+                
+                <div class="input-group" style="display: flex; gap: 15px;">
+                    <button class="btn" id="save-manage-btn">
+                        <i class="fas fa-save"></i> 保存更改
+                    </button>
+                    <button class="btn" id="add-message-btn" style="background: linear-gradient(90deg, #7C9EB2 0%, #A8E6CF 100%);">
+                        <i class="fas fa-comment"></i> 仅添加留言
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 通知组件 -->
+    <div id="notification-container"></div>
+    
+    <script>
+        // 等待DOM完全加载
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            console.log("🥬 页面脚本已成功加载");
+            
+            // 纯色头像颜色数组
+            const avatarColors = [
+                'avatar-color-1',
+                'avatar-color-2', 
+                'avatar-color-3',
+                'avatar-color-4',
+                'avatar-color-5',
+                'avatar-color-6'
+            ];
+            
+            // 根据名字获取头像颜色
+            function getAvatarColor(name) {
+                let sum = 0;
+                for (let i = 0; i < name.length; i++) {
+                    sum += name.charCodeAt(i);
+                }
+                return avatarColors[sum % avatarColors.length];
+            }
+            
+            // 获取名字首字母（中文取第一个字，英文取首字母大写）
+            function getInitials(name) {
+                if (!name) return '?';
+                // 如果是中文，取第一个字
+                if (/[\u4e00-\u9fa5]/.test(name)) {
+                    return name.charAt(0);
+                }
+                // 如果是英文，取首字母大写
+                return name.charAt(0).toUpperCase();
+            }
+            
+            // 生成纯色头像HTML
+            function generateSolidAvatar(name, size = 'small') {
+                const colorClass = getAvatarColor(name);
+                const initials = getInitials(name);
+                
+                if (size === 'large') {
+                    return `<div class="friend-profile-img ${colorClass}">${initials}</div>`;
+                } else {
+                    return `<div class="friend-avatar ${colorClass}">${initials}</div>`;
+                }
+            }
+            
+            // 模拟数据 - 初始好友档案
+            let friendsData = JSON.parse(localStorage.getItem('friendsData')) || [
+                {
+                    id: 1,
+                    name: "小可爱",
+                    adminMessage: "亲爱的小可爱，认识你是我最开心的事情！每次和你聊天都感觉特别温暖，希望我们的友谊长存！",
+                    avatarColor: 'avatar-color-1',
+                    messages: [
+                        { sender: "🥬", content: "亲爱的小可爱，认识你是我最开心的事情！每次和你聊天都感觉特别温暖，希望我们的友谊长存！", time: "2023-10-01 12:00", type: "message" },
+                        { sender: "🥬", content: "最近天气转凉了，记得多穿衣服哦！", time: "2023-10-16 09:15", type: "message" },
+                        { sender: "小可爱", content: "🥬，谢谢你这么温暖的留言！我也超级喜欢和你做朋友！", time: "2023-10-15 14:30", type: "message" },
+                        { sender: "小可爱", content: "你也是！周末有空一起喝奶茶吗？", time: "2023-10-16 18:45", type: "message" }
+                    ],
+                    timeline: [] // 这个将由messages生成
+                },
+                {
+                    id: 2,
+                    name: "阳光",
+                    adminMessage: "阳光，你就像你的名字一样，总是能带给我正能量！谢谢你一直以来的支持和鼓励～",
+                    avatarColor: 'avatar-color-2',
+                    messages: [
+                        { sender: "🥬", content: "阳光，你就像你的名字一样，总是能带给我正能量！谢谢你一直以来的支持和鼓励～", time: "2023-10-01 10:30", type: "message" },
+                        { sender: "阳光", content: "🥬你太会夸人了！和你在一起总是很开心！", time: "2023-10-10 11:20", type: "message" }
+                    ],
+                    timeline: []
+                }
+            ];
+            
+            // 为现有数据生成时间线
+            function updateTimelineForAllFriends() {
+                friendsData.forEach(friend => {
+                    if (!friend.messages) friend.messages = [];
+                    
+                    // 合并所有时间线项目
+                    friend.timeline = [];
+                    
+                    // 添加所有留言
+                    friend.messages.forEach(message => {
+                        friend.timeline.push({
+                            ...message,
+                            type: "message"
+                        });
+                    });
+                    
+                    // 按时间排序（最新的在前面）
+                    friend.timeline.sort((a, b) => new Date(b.time) - new Date(a.time));
+                    
+                    // 为已有数据添加颜色属性
+                    if (!friend.avatarColor) {
+                        friend.avatarColor = getAvatarColor(friend.name);
+                    }
+                });
+            }
+            
+            // 初始化时间线
+            updateTimelineForAllFriends();
+            
+            // 当前选中的好友（用户视角）
+            let currentFriend = null;
+            // 当前时间线过滤器
+            let currentFilter = "all";
+            // 当前正在管理的好友
+            let managingFriend = null;
+            
+            // 管理员密码
+            const ADMIN_PASSWORD = "v05708";
+            
+            // DOM 元素
+            const adminBtn = document.getElementById('admin-btn');
+            const userBtn = document.getElementById('user-btn');
+            const adminView = document.getElementById('admin-view');
+            const userView = document.getElementById('user-view');
+            const passwordSection = document.getElementById('password-section');
+            const adminContent = document.getElementById('admin-content');
+            const loginBtn = document.getElementById('login-btn');
+            const adminPasswordInput = document.getElementById('admin-password');
+            const friendForm = document.getElementById('friend-form');
+            const friendNameInput = document.getElementById('friend-name');
+            const adminMessageInput = document.getElementById('admin-message');
+            const friendList = document.getElementById('friend-list');
+            const userNameInput = document.getElementById('user-name');
+            const searchBtn = document.getElementById('search-btn');
+            const userResult = document.getElementById('user-result');
+            const timelineSection = document.getElementById('timeline-section');
+            const newMessageSection = document.getElementById('new-message-section');
+            const userMessageInput = document.getElementById('user-message');
+            const sendMessageBtn = document.getElementById('send-message-btn');
+            const notificationContainer = document.getElementById('notification-container');
+            const timelineFilter = document.getElementById('timeline-filter');
+            const adminBackBtn = document.getElementById('admin-back-btn');
+            const userBackBtn = document.getElementById('user-back-btn');
+            
+            // 管理模态框元素
+            const manageFriendModal = document.getElementById('manage-friend-modal');
+            const closeManageModalBtn = document.getElementById('close-manage-modal');
+            const manageFriendNameInput = document.getElementById('manage-friend-name');
+            const manageAdminMessageInput = document.getElementById('manage-admin-message');
+            const manageNewMessageInput = document.getElementById('manage-new-message');
+            const saveManageBtn = document.getElementById('save-manage-btn');
+            const addMessageBtn = document.getElementById('add-message-btn');
+            
+            // 视角切换
+            adminBtn.addEventListener('click', () => {
+                adminBtn.classList.add('active');
+                userBtn.classList.remove('active');
+                adminView.classList.add('active');
+                userView.classList.remove('active');
+                
+                // 重置管理员登录状态
+                adminContent.classList.add('hidden');
+                passwordSection.classList.remove('hidden');
+                adminPasswordInput.value = '';
+            });
+            
+            userBtn.addEventListener('click', () => {
+                userBtn.classList.add('active');
+                adminBtn.classList.remove('active');
+                userView.classList.add('active');
+                adminView.classList.remove('active');
+                
+                // 重置用户搜索
+                resetUserSearch();
+                currentFriend = null;
+            });
+            
+            // 管理员登录
+            loginBtn.addEventListener('click', () => {
+                const password = adminPasswordInput.value;
+                
+                if (password === ADMIN_PASSWORD) {
+                    passwordSection.classList.add('hidden');
+                    adminContent.classList.remove('hidden');
+                    showNotification('欢迎回来，🥬！', 'success');
+                    loadFriendsList();
+                } else {
+                    showNotification('密码不对哦，再试试看！', 'error');
+                    adminPasswordInput.value = '';
+                    adminPasswordInput.focus();
+                }
+            });
+            
+            // 管理员返回登录按钮
+            adminBackBtn.addEventListener('click', () => {
+                adminContent.classList.add('hidden');
+                passwordSection.classList.remove('hidden');
+                adminPasswordInput.value = '';
+            });
+            
+            // 用户返回搜索按钮
+            userBackBtn.addEventListener('click', () => {
+                resetUserSearch();
+                currentFriend = null;
+            });
+            
+            // 重置用户搜索界面
+            function resetUserSearch() {
+                userResult.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-heart"></i>
+                        <p>输入你的名字，看看🥬给你留了什么话</p>
+                    </div>
+                `;
+                timelineSection.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-clock"></i>
+                        <p>找到你的档案后，可以在这里查看🥬为你记录的时光</p>
+                    </div>
+                `;
+                newMessageSection.classList.add('hidden');
+                userNameInput.value = '';
+                userBackBtn.classList.add('hidden');
+            }
+            
+            // 创建好友档案
+            friendForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = friendNameInput.value.trim();
+                const adminMessage = adminMessageInput.value.trim();
+                
+                if (!name) {
+                    showNotification('请输入好友的名字哦！', 'error');
+                    return;
+                }
+                
+                // 检查是否已存在同名好友
+                const existingFriend = friendsData.find(friend => friend.name === name);
+                if (existingFriend) {
+                    showNotification('已经有同名好友的档案啦！换个名字试试？', 'error');
+                    return;
+                }
+                
+                // 生成新好友ID
+                const newId = friendsData.length > 0 ? Math.max(...friendsData.map(f => f.id)) + 1 : 1;
+                
+                // 获取当前时间
+                const now = new Date();
+                const timeString = now.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).replace(/\//g, '-');
+                
+                // 生成头像颜色
+                const avatarColor = getAvatarColor(name);
+                
+                // 创建新好友档案
+                const newFriend = {
+                    id: newId,
+                    name: name,
+                    adminMessage: adminMessage || "🥬想对你说：很高兴认识你！",
+                    avatarColor: avatarColor,
+                    messages: [],
+                    timeline: []
+                };
+                
+                // 添加初始留言
+                const initialMessage = {
+                    sender: "🥬",
+                    content: adminMessage || "🥬想对你说：很高兴认识你！",
+                    time: timeString,
+                    type: "message"
+                };
+                newFriend.messages.push(initialMessage);
+                newFriend.timeline.push(initialMessage);
+                
+                // 添加到数据数组
+                friendsData.push(newFriend);
+                
+                // 保存到本地存储
+                localStorage.setItem('friendsData', JSON.stringify(friendsData));
+                
+                // 重置表单
+                friendForm.reset();
+                
+                // 立即重新加载好友列表（使用延时确保DOM更新）
+                setTimeout(() => {
+                    loadFriendsList();
+                    showNotification(`好友 "${name}" 的档案创建成功！🥬`, 'success');
+                }, 50);
+            });
+            
+            // 加载好友列表
+            function loadFriendsList() {
+                console.log("开始加载好友列表...");
+                
+                // 强制从localStorage重新读取数据（确保数据最新）
+                const freshData = localStorage.getItem('friendsData');
+                if (freshData) {
+                    try {
+                        friendsData = JSON.parse(freshData);
+                        console.log("重新加载的数据:", friendsData);
+                    } catch (e) {
+                        console.error("解析本地存储数据失败:", e);
+                    }
+                }
+                
+                if (friendsData.length === 0) {
+                    friendList.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-users"></i>
+                            <p>还没有好友档案，快为你的朋友创建一个吧！</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 清空当前列表
+                friendList.innerHTML = '';
+                
+                friendsData.forEach(friend => {
+                    // 生成纯色头像HTML
+                    const avatarHtml = generateSolidAvatar(friend.name, 'small');
+                    
+                    const friendItem = document.createElement('div');
+                    friendItem.className = 'friend-item';
+                    friendItem.innerHTML = `
+                        ${avatarHtml}
+                        <div class="friend-info">
+                            <h4>${friend.name}</h4>
+                            <p>${friend.adminMessage.substring(0, 60)}${friend.adminMessage.length > 60 ? '...' : ''}</p>
+                            <p style="font-size: 0.9rem; color: var(--accent-color); margin-top: 5px;">
+                                <i class="fas fa-comments"></i> ${friend.messages ? friend.messages.length : 0} 条留言
+                            </p>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="action-btn view-friend-btn" data-id="${friend.id}">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                            <button class="action-btn manage-friend-btn" data-id="${friend.id}">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <button class="action-btn delete-friend-btn" data-id="${friend.id}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    friendList.appendChild(friendItem);
+                });
+                
+                // 添加查看和删除事件监听
+                document.querySelectorAll('.view-friend-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const friendId = parseInt(e.currentTarget.getAttribute('data-id'));
+                        viewFriend(friendId);
+                    });
+                });
+                
+                // 添加管理事件监听
+                document.querySelectorAll('.manage-friend-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const friendId = parseInt(e.currentTarget.getAttribute('data-id'));
+                        openManageModal(friendId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-friend-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const friendId = parseInt(e.currentTarget.getAttribute('data-id'));
+                        deleteFriend(friendId);
+                    });
+                });
+            }
+            
+            // 打开管理模态框
+            function openManageModal(friendId) {
+                const friend = friendsData.find(f => f.id === friendId);
+                if (!friend) return;
+                
+                managingFriend = friend;
+                
+                // 填充模态框内容
+                manageFriendNameInput.value = friend.name;
+                manageAdminMessageInput.value = friend.adminMessage;
+                manageNewMessageInput.value = '';
+                
+                // 显示模态框
+                manageFriendModal.classList.add('active');
+            }
+            
+            // 保存管理更改
+            saveManageBtn.addEventListener('click', () => {
+                if (!managingFriend) return;
+                
+                // 更新管理员留言
+                managingFriend.adminMessage = manageAdminMessageInput.value.trim() || managingFriend.adminMessage;
+                
+                // 添加新留言（如果有）
+                const newMessageContent = manageNewMessageInput.value.trim();
+                if (newMessageContent) {
+                    const now = new Date();
+                    const timeString = now.toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }).replace(/\//g, '-');
+                    
+                    const newMessage = {
+                        sender: "🥬",
+                        content: newMessageContent,
+                        time: timeString,
+                        type: 'message'
+                    };
+                    
+                    managingFriend.messages.push(newMessage);
+                }
+                
+                // 更新好友的时间线
+                updateFriendTimeline(managingFriend);
+                
+                // 保存到本地存储
+                localStorage.setItem('friendsData', JSON.stringify(friendsData));
+                
+                // 重置留言输入框
+                manageNewMessageInput.value = '';
+                
+                // 重新加载好友列表
+                setTimeout(() => {
+                    loadFriendsList();
+                }, 50);
+                
+                // 关闭模态框
+                manageFriendModal.classList.remove('active');
+                
+                showNotification(`好友 "${managingFriend.name}" 的档案已更新成功！🥬`, 'success');
+            });
+            
+            // 仅添加留言按钮
+            addMessageBtn.addEventListener('click', () => {
+                if (!managingFriend) return;
+                
+                const newMessageContent = manageNewMessageInput.value.trim();
+                if (!newMessageContent) {
+                    showNotification('请输入留言内容！', 'error');
+                    return;
+                }
+                
+                const now = new Date();
+                const timeString = now.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).replace(/\//g, '-');
+                
+                const newMessage = {
+                    sender: "🥬",
+                    content: newMessageContent,
+                    time: timeString,
+                    type: 'message'
+                };
+                
+                managingFriend.messages.push(newMessage);
+                
+                // 更新好友的时间线
+                updateFriendTimeline(managingFriend);
+                
+                // 保存到本地存储
+                localStorage.setItem('friendsData', JSON.stringify(friendsData));
+                
+                // 重置留言输入框
+                manageNewMessageInput.value = '';
+                
+                // 重新加载好友列表
+                setTimeout(() => {
+                    loadFriendsList();
+                }, 50);
+                
+                showNotification(`已为 "${managingFriend.name}" 添加新留言成功！🥬`, 'success');
+            });
+            
+            // 更新好友时间线
+            function updateFriendTimeline(friend) {
+                friend.timeline = [];
+                
+                // 添加所有留言
+                if (friend.messages && friend.messages.length > 0) {
+                    friend.messages.forEach(message => {
+                        friend.timeline.push({
+                            ...message,
+                            type: "message"
+                        });
+                    });
+                }
+                
+                // 按时间排序（最新的在前面）
+                friend.timeline.sort((a, b) => new Date(b.time) - new Date(a.time));
+            }
+            
+            // 关闭管理模态框
+            closeManageModalBtn.addEventListener('click', () => {
+                manageFriendModal.classList.remove('active');
+            });
+            
+            // 点击模态框外部关闭
+            manageFriendModal.addEventListener('click', (e) => {
+                if (e.target === manageFriendModal) {
+                    manageFriendModal.classList.remove('active');
+                }
+            });
+            
+            // 查看好友档案
+            function viewFriend(friendId) {
+                const friend = friendsData.find(f => f.id === friendId);
+                if (!friend) return;
+                
+                // 切换到用户视角
+                userBtn.click();
+                
+                // 设置搜索框
+                userNameInput.value = friend.name;
+                
+                // 显示好友档案
+                displayFriendProfile(friend);
+            }
+            
+            // 删除好友档案
+            function deleteFriend(friendId) {
+                const friend = friendsData.find(f => f.id === friendId);
+                if (!friend) return;
+                
+                if (confirm(`确定要删除好友 "${friend.name}" 的档案吗？这将会删除所有留言记录。`)) {
+                    friendsData = friendsData.filter(f => f.id !== friendId);
+                    localStorage.setItem('friendsData', JSON.stringify(friendsData));
+                    
+                    // 立即重新加载好友列表
+                    setTimeout(() => {
+                        loadFriendsList();
+                        showNotification(`好友 "${friend.name}" 的档案已删除成功！`, 'info');
+                    }, 50);
+                }
+            }
+            
+            // 时间线过滤器
+            timelineFilter.addEventListener('click', (e) => {
+                if (e.target.classList.contains('filter-btn')) {
+                    // 更新活动按钮
+                    document.querySelectorAll('.filter-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                    
+                    // 更新过滤器
+                    currentFilter = e.target.getAttribute('data-filter');
+                    
+                    // 重新渲染时间线
+                    if (currentFriend) {
+                        displayTimeline(currentFriend);
+                    }
+                }
+            });
+            
+            // 用户搜索好友档案
+            searchBtn.addEventListener('click', searchFriend);
+            
+            userNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchFriend();
+                }
+            });
+            
+            function searchFriend() {
+                const name = userNameInput.value.trim();
+                
+                if (!name) {
+                    showNotification('请输入你的名字哦！', 'error');
+                    return;
+                }
+                
+                const friend = friendsData.find(f => f.name.toLowerCase() === name.toLowerCase());
+                
+                if (friend) {
+                    displayFriendProfile(friend);
+                } else {
+                    userResult.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-user-slash"></i>
+                            <p style="color: #FF7A7A;">请私聊🥬并耐心等待一会哦~</p>
+                            <p style="margin-top: 10px; font-size: 1rem;">🥬还没有创建你的档案</p>
+                        </div>
+                    `;
+                    
+                    timelineSection.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-clock"></i>
+                            <p>还没有时间线记录</p>
+                        </div>
+                    `;
+                    
+                    newMessageSection.classList.add('hidden');
+                    userBackBtn.classList.remove('hidden');
+                    currentFriend = null;
+                }
+            }
+            
+            // 显示好友档案
+            function displayFriendProfile(friend) {
+                currentFriend = friend;
+                
+                // 生成纯色头像HTML（大尺寸）
+                const avatarHtml = generateSolidAvatar(friend.name, 'large');
+                
+                // 显示好友信息（使用纯色头像）
+                userResult.innerHTML = `
+                    <div class="friend-profile">
+                        <div class="friend-avatar-container">
+                            ${avatarHtml}
+                        </div>
+                        <h3>${friend.name}</h3>
+                        <p>欢迎来到你的专属档案！🥬为你记录了一些美好时刻～</p>
+                    </div>
+                `;
+                
+                // 显示时间线
+                displayTimeline(friend);
+                
+                // 显示留言输入框
+                newMessageSection.classList.remove('hidden');
+                userMessageInput.value = '';
+                userMessageInput.focus();
+                
+                // 显示返回按钮
+                userBackBtn.classList.remove('hidden');
+            }
+            
+            // 显示时间线
+            function displayTimeline(friend) {
+                // 确保时间线是最新的
+                updateFriendTimeline(friend);
+                
+                // 过滤时间线项目
+                let filteredTimeline = friend.timeline;
+                if (currentFilter === 'message') {
+                    filteredTimeline = friend.timeline.filter(item => item.type === 'message');
+                }
+                
+                if (filteredTimeline.length === 0) {
+                    timelineSection.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-clock"></i>
+                            <p>还没有时间线记录</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                timelineSection.innerHTML = '<div class="timeline">';
+                
+                filteredTimeline.forEach(item => {
+                    const timelineItem = document.createElement('div');
+                    timelineItem.className = 'timeline-item';
+                    
+                    if (item.type === 'message') {
+                        timelineItem.innerHTML = `
+                            <div class="timeline-icon">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <span class="timeline-sender">${item.sender}</span>
+                                    <span class="timeline-time">${item.time}</span>
+                                </div>
+                                <div class="timeline-message">${item.content}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    timelineSection.querySelector('.timeline').appendChild(timelineItem);
+                });
+                
+                timelineSection.innerHTML += '</div>';
+            }
+            
+            // 发送留言（用户）
+            sendMessageBtn.addEventListener('click', () => {
+                if (!currentFriend) {
+                    showNotification('请先查找你的档案！', 'error');
+                    return;
+                }
+                
+                const message = userMessageInput.value.trim();
+                
+                if (!message) {
+                    showNotification('请输入留言内容哦！', 'error');
+                    return;
+                }
+                
+                // 获取当前时间
+                const now = new Date();
+                const timeString = now.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).replace(/\//g, '-');
+                
+                // 创建留言对象
+                const newMessage = {
+                    sender: currentFriend.name,
+                    content: message,
+                    time: timeString,
+                    type: 'message'
+                };
+                
+                // 添加到消息数组
+                if (!currentFriend.messages) currentFriend.messages = [];
+                currentFriend.messages.push(newMessage);
+                
+                // 更新时间线
+                updateFriendTimeline(currentFriend);
+                
+                // 保存到本地存储
+                localStorage.setItem('friendsData', JSON.stringify(friendsData));
+                
+                // 重新显示时间线
+                displayTimeline(currentFriend);
+                
+                // 清空输入框
+                userMessageInput.value = '';
+                
+                showNotification('留言发送成功！🥬会很快回复你的！', 'success');
+                
+                // 自动添加一条🥬回复（模拟）
+                setTimeout(() => {
+                    // 随机选择一条回复
+                    const replies = [
+                        "收到你的留言啦，好开心！",
+                        "谢谢你的留言，我会一直珍惜我们的友谊！",
+                        "看到你的留言心里暖暖的！",
+                        "谢谢关心，你也要照顾好自己哦！",
+                        "已收到，期待下次见面！",
+                        "你的留言让我今天的心情都变好了！",
+                        "友谊万岁！🥬永远是你的朋友！"
+                    ];
+                    
+                    const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                    
+                    // 创建回复对象
+                    const replyMessage = {
+                        sender: "🥬",
+                        content: randomReply,
+                        time: new Date(now.getTime() + 60000).toLocaleString('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }).replace(/\//g, '-'),
+                        type: 'message'
+                    };
+                    
+                    // 添加🥬回复
+                    currentFriend.messages.push(replyMessage);
+                    
+                    // 更新时间线
+                    updateFriendTimeline(currentFriend);
+                    
+                    // 保存到本地存储
+                    localStorage.setItem('friendsData', JSON.stringify(friendsData));
+                    
+                    // 重新显示时间线
+                    displayTimeline(currentFriend);
+                    
+                    showNotification('🥬回复了你的留言！', 'info');
+                }, 2000);
+            });
+            
+            // 显示通知
+            function showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `<span>${message}</span>`;
+                
+                notificationContainer.appendChild(notification);
+                
+                // 3秒后自动移除
+                setTimeout(() => {
+                    notification.style.animation = 'slideIn 0.5s ease reverse';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 500);
+                }, 3000);
+            }
+            
+            // 初始化页面
+            function init() {
+                // 初始化时间线
+                updateTimelineForAllFriends();
+                
+                // 加载好友列表
+                loadFriendsList();
+                
+                // 添加一些交互效果
+                document.querySelectorAll('.btn').forEach(btn => {
+                    btn.addEventListener('mousedown', () => {
+                        btn.style.transform = 'translateY(0)';
+                    });
+                    
+                    btn.addEventListener('mouseup', () => {
+                        btn.style.transform = 'translateY(-3px)';
+                    });
+                    
+                    btn.addEventListener('mouseleave', () => {
+                        btn.style.transform = 'translateY(0)';
+                    });
+                });
+            }
+            
+            // 页面加载完成后初始化
+            init();
+            
+        }); // DOMContentLoaded 结束
+    </script>
 </body>
 </html>
